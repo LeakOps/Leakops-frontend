@@ -81,7 +81,7 @@ export default function AboutPage() {
           </h3>
           <div className="flex items-center justify-center gap-4">
             <a
-              href="https://github.com/leakops"
+              href="https://x.com/AdityaS888"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
@@ -90,7 +90,7 @@ export default function AboutPage() {
               <GithubIcon className="w-5 h-5" />
             </a>
             <a
-              href="https://linkedin.com/company/leakops"
+              href="https://www.linkedin.com/in/aditya-singh0811b/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"

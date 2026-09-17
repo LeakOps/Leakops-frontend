@@ -43,7 +43,7 @@ export function Footer() {
                 <GithubIcon className="w-4 h-4" />
               </a>
               <a
-                href="https://linkedin.com/company/leakops"
+                href="https://www.linkedin.com/in/aditya-singh0811b/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
@@ -52,7 +52,7 @@ export function Footer() {
                 <LinkedinIcon className="w-4 h-4" />
               </a>
               <a
-                href="https://x.com/leakops"
+                href="https://x.com/AdityaS888"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X / Twitter"
