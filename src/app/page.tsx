@@ -105,7 +105,11 @@ export default function LandingPage() {
           {/* Left Column (~55% split -> 7 cols on desktop) */}
           <div className="lg:col-span-7 flex flex-col items-start z-10">
             {/* 1. Small pill badge */}
-            <Badge variant="indigo" dot className="mb-6 text-[14px] px-3.5 py-1">
+            <Badge
+              variant="indigo"
+              dot
+              className="mb-6 text-[14px] px-3.5 py-1"
+            >
               Stop revenue leaks before they hit your MRR
             </Badge>
 
@@ -120,14 +124,20 @@ export default function LandingPage() {
 
             {/* 3. Paragraph */}
             <p className="mt-5 text-[#6B7280] dark:text-gray-400 text-base sm:text-[17px] leading-relaxed max-w-[480px]">
-              LeakOps monitors failed payments, dunning, proration errors, coupon
-              abuse and more — so you can recover lost revenue automatically.
+              LeakOps monitors failed payments, dunning, proration errors,
+              coupon abuse and more — so you can recover lost revenue
+              automatically.
             </p>
 
             {/* 4. CTA row: ONLY ONE BUTTON */}
             <div className="mt-8">
               <Link href="/login?tab=signup">
-                <Button variant="primary" size="lg" withArrow className="px-7 py-3.5">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  withArrow
+                  className="px-7 py-3.5"
+                >
                   Get Started Free
                 </Button>
               </Link>
@@ -169,9 +179,21 @@ export default function LandingPage() {
               <circle cx="80" cy="80" r="3" fill="#6366F1" fillOpacity="0.4" />
               <circle cx="420" cy="80" r="3" fill="#6366F1" fillOpacity="0.4" />
               <circle cx="50" cy="250" r="3" fill="#6366F1" fillOpacity="0.4" />
-              <circle cx="450" cy="250" r="3" fill="#6366F1" fillOpacity="0.4" />
+              <circle
+                cx="450"
+                cy="250"
+                r="3"
+                fill="#6366F1"
+                fillOpacity="0.4"
+              />
               <circle cx="90" cy="420" r="3" fill="#6366F1" fillOpacity="0.4" />
-              <circle cx="410" cy="420" r="3" fill="#6366F1" fillOpacity="0.4" />
+              <circle
+                cx="410"
+                cy="420"
+                r="3"
+                fill="#6366F1"
+                fillOpacity="0.4"
+              />
             </svg>
 
             {/* Center large 3D glossy hexagon */}
@@ -238,7 +260,10 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION: Features (#features) */}
-      <section id="features" className="py-20 sm:py-28 bg-[#F5F6FB]/70 dark:bg-[#0E1322]/80 border-t border-b border-[#E5E7EB] dark:border-gray-800 transition-colors">
+      <section
+        id="features"
+        className="py-20 sm:py-28 bg-[#F5F6FB]/70 dark:bg-[#0E1322]/80 border-t border-b border-[#E5E7EB] dark:border-gray-800 transition-colors"
+      >
         <div className="max-w-7xl mx-auto px-6 sm:px-10">
           {/* Part 1: How it Works (from Addendum #4) */}
           <div className="text-center max-w-2xl mx-auto mb-16 sm:mb-20">
@@ -297,7 +322,8 @@ export default function LandingPage() {
               Every leak, covered.
             </h2>
             <p className="mt-3 text-[#6B7280] dark:text-gray-400 text-sm sm:text-base leading-relaxed">
-              Six ways your SaaS revenue quietly disappears — and how LeakOps plugs each one.
+              Six ways your SaaS revenue quietly disappears — and how LeakOps
+              plugs each one.
             </p>
           </div>
 
@@ -335,10 +361,11 @@ export default function LandingPage() {
             </h2>
 
             <p className="text-sm sm:text-base text-[#6B7280] dark:text-gray-400 leading-relaxed">
-              Most payment platforms retry a failed charge once and send a generic email.
-              LeakOps goes further — it looks at <em>why</em> a card was declined and
-              adjusts the retry timing, channel, and messaging to match, based on
-              patterns across thousands of recovery attempts.
+              Most payment platforms retry a failed charge once and send a
+              generic email. LeakOps goes further — it looks at <em>why</em> a
+              card was declined and adjusts the retry timing, channel, and
+              messaging to match, based on patterns across thousands of recovery
+              attempts.
             </p>
 
             <div className="pt-3">
@@ -352,7 +379,10 @@ export default function LandingPage() {
 
           {/* Right checklist card (~55% -> 7 cols) */}
           <div className="lg:col-span-7">
-            <Card padding="lg" className="border border-[#E5E7EB] dark:border-gray-800">
+            <Card
+              padding="lg"
+              className="border border-[#E5E7EB] dark:border-gray-800"
+            >
               <h3 className="font-display font-semibold text-lg text-[#111827] dark:text-white mb-6">
                 Intelligent Dunning Architecture
               </h3>
@@ -375,7 +405,10 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION: Pricing Teaser & Preview (#pricing) */}
-      <section id="pricing" className="py-20 sm:py-28 bg-[#F5F6FB]/70 dark:bg-[#0E1322]/80 border-t border-[#E5E7EB] dark:border-gray-800 transition-colors">
+      <section
+        id="pricing"
+        className="py-20 sm:py-28 bg-[#F5F6FB]/70 dark:bg-[#0E1322]/80 border-t border-[#E5E7EB] dark:border-gray-800 transition-colors"
+      >
         <div className="max-w-7xl mx-auto px-6 sm:px-10">
           {/* Pricing Teaser Header */}
           <div className="text-center max-w-2xl mx-auto mb-14">
@@ -383,11 +416,11 @@ export default function LandingPage() {
               PRICING
             </div>
             <h2 className="font-display font-bold text-3xl sm:text-4xl text-[#111827] dark:text-white leading-tight">
-              Built to pay for itself.
+              Choose the plan that fits your business.
             </h2>
             <p className="mt-3 text-[#6B7280] dark:text-gray-400 text-sm sm:text-base leading-relaxed">
-              One flat monthly plan based on how much recovered revenue you&apos;re tracking.
-              Plans start at $19/month, no setup fees, cancel anytime.
+              Start for free and scale as you grow. No hidden fees, no setup
+              costs. Just powerful tools to help you recover revenue.
             </p>
             <div className="mt-6">
               <Link href="/pricing">
@@ -398,8 +431,56 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Pricing Preview: Condensed 3-Card Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch max-w-5xl mx-auto">
+          {/* Pricing Preview: Condensed 4-Card Row */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch max-w-6xl mx-auto">
+            {/* Free Trial */}
+            <Card padding="md" className="flex flex-col justify-between">
+              <div>
+                <h3 className="font-display font-bold text-lg text-[#111827] dark:text-white">
+                  Free Trial
+                </h3>
+                <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1">
+                  Try everything, risk-free.
+                </p>
+
+                <div className="mt-4 pb-4 border-b border-[#E5E7EB] dark:border-gray-800">
+                  <span className="font-display font-extrabold text-3xl text-[#111827] dark:text-white">
+                    $0
+                  </span>
+                  <span className="text-xs text-[#6B7280] dark:text-gray-400 ml-1">
+                    /month
+                  </span>
+                </div>
+
+                <p className="mt-3 text-xs text-[#6B7280] dark:text-gray-400">
+                  30 days · No credit card required
+                </p>
+
+                <ul className="mt-5 space-y-2.5 text-xs text-[#111827] dark:text-gray-300">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-[#6366F1] shrink-0" />
+                    <span>Connect Stripe / Dodo</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-[#6366F1] shrink-0" />
+                    <span>Detect revenue leaks</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-[#6366F1] shrink-0" />
+                    <span>Failed payment recovery</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-2">
+                <Link href="/pricing" className="block w-full">
+                  <Button variant="outline" className="w-full text-xs">
+                    Start Free Trial
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+
             {/* Starter ($19) */}
             <Card padding="md" className="flex flex-col justify-between">
               <div>
