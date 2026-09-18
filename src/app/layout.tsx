@@ -21,6 +21,11 @@ export const metadata: Metadata = {
   title: "LeakOps — SaaS Revenue-Leak Recovery",
   description:
     "Recover lost revenue from failed payments, dunning, proration errors, coupon abuse and more automatically.",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
