@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/Button";
@@ -29,9 +28,10 @@ type Step = 1 | 2 | 3;
 type Provider = "stripe" | "dodo";
 
 export default function ConnectPaymentPage() {
-  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<Step>(1);
-  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
@@ -39,7 +39,11 @@ export default function ConnectPaymentPage() {
   // Automated progress screen state for Step 2
   const [progressItems, setProgressItems] = useState([
     { id: 1, label: "Creating your account…", done: false },
-    { id: 2, label: "Registering secure webhook with Stripe/Dodo…", done: false },
+    {
+      id: 2,
+      label: "Registering secure webhook with Stripe/Dodo…",
+      done: false,
+    },
     { id: 3, label: "Encrypting & storing credentials…", done: false },
   ]);
 
@@ -54,39 +58,38 @@ export default function ConnectPaymentPage() {
     if (!apiKey.trim()) return;
 
     setIsModalOpen(false);
+    setProgressItems([
+      { id: 1, label: "Creating your account…", done: false },
+      {
+        id: 2,
+        label: `Registering secure webhook with ${
+          selectedProvider === "dodo" ? "Dodo" : "Stripe"
+        }…`,
+        done: false,
+      },
+      { id: 3, label: "Encrypting & storing credentials…", done: false },
+    ]);
     setCurrentStep(2);
   };
 
   // Step 2 Automated Sequence
   useEffect(() => {
     if (currentStep === 2) {
-      setProgressItems([
-        { id: 1, label: "Creating your account…", done: false },
-        {
-          id: 2,
-          label: `Registering secure webhook with ${
-            selectedProvider === "dodo" ? "Dodo" : "Stripe"
-          }…`,
-          done: false,
-        },
-        { id: 3, label: "Encrypting & storing credentials…", done: false },
-      ]);
-
       const t1 = setTimeout(() => {
         setProgressItems((prev) =>
-          prev.map((item) => (item.id === 1 ? { ...item, done: true } : item))
+          prev.map((item) => (item.id === 1 ? { ...item, done: true } : item)),
         );
       }, 700);
 
       const t2 = setTimeout(() => {
         setProgressItems((prev) =>
-          prev.map((item) => (item.id === 2 ? { ...item, done: true } : item))
+          prev.map((item) => (item.id === 2 ? { ...item, done: true } : item)),
         );
       }, 1500);
 
       const t3 = setTimeout(() => {
         setProgressItems((prev) =>
-          prev.map((item) => (item.id === 3 ? { ...item, done: true } : item))
+          prev.map((item) => (item.id === 3 ? { ...item, done: true } : item)),
         );
       }, 2300);
 
@@ -101,7 +104,7 @@ export default function ConnectPaymentPage() {
         clearTimeout(t4);
       };
     }
-  }, [currentStep, selectedProvider]);
+  }, [currentStep]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0B0F19] text-[#111827] dark:text-[#F9FAFB] flex flex-col transition-colors">
@@ -122,8 +125,8 @@ export default function ConnectPaymentPage() {
                 currentStep === 1
                   ? "bg-[#6366F1] text-white ring-4 ring-[#6366F1]/20"
                   : currentStep > 1
-                  ? "bg-[#10B981] text-white"
-                  : "border border-gray-300 dark:border-gray-700 text-gray-400"
+                    ? "bg-[#10B981] text-white"
+                    : "border border-gray-300 dark:border-gray-700 text-gray-400",
               )}
             >
               {currentStep > 1 ? <Check className="w-4 h-4" /> : "1"}
@@ -133,7 +136,7 @@ export default function ConnectPaymentPage() {
                 "text-xs sm:text-sm font-medium",
                 currentStep === 1
                   ? "text-[#111827] dark:text-white font-bold"
-                  : "text-[#6B7280] dark:text-gray-400"
+                  : "text-[#6B7280] dark:text-gray-400",
               )}
             >
               ① Connect Payment
@@ -151,8 +154,8 @@ export default function ConnectPaymentPage() {
                 currentStep === 2
                   ? "bg-[#6366F1] text-white ring-4 ring-[#6366F1]/20"
                   : currentStep > 2
-                  ? "bg-[#10B981] text-white"
-                  : "border border-gray-300 dark:border-gray-700 text-gray-400"
+                    ? "bg-[#10B981] text-white"
+                    : "border border-gray-300 dark:border-gray-700 text-gray-400",
               )}
             >
               {currentStep > 2 ? <Check className="w-4 h-4" /> : "2"}
@@ -162,7 +165,7 @@ export default function ConnectPaymentPage() {
                 "text-xs sm:text-sm font-medium",
                 currentStep === 2
                   ? "text-[#111827] dark:text-white font-bold"
-                  : "text-[#6B7280] dark:text-gray-400"
+                  : "text-[#6B7280] dark:text-gray-400",
               )}
             >
               ② Webhook Setup
@@ -179,7 +182,7 @@ export default function ConnectPaymentPage() {
                 "w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors",
                 currentStep === 3
                   ? "bg-[#6366F1] text-white ring-4 ring-[#6366F1]/20"
-                  : "border border-gray-300 dark:border-gray-700 text-gray-400"
+                  : "border border-gray-300 dark:border-gray-700 text-gray-400",
               )}
             >
               {currentStep === 3 ? <Check className="w-4 h-4" /> : "3"}
@@ -189,7 +192,7 @@ export default function ConnectPaymentPage() {
                 "text-xs sm:text-sm font-medium",
                 currentStep === 3
                   ? "text-[#111827] dark:text-white font-bold"
-                  : "text-[#6B7280] dark:text-gray-400"
+                  : "text-[#6B7280] dark:text-gray-400",
               )}
             >
               ③ Complete
@@ -244,9 +247,9 @@ export default function ConnectPaymentPage() {
 
               {/* 3. Paragraph */}
               <p className="mt-4 text-sm sm:text-[15px] leading-relaxed text-[#6B7280] dark:text-gray-300">
-                Link your Stripe or Dodo account to start recovering lost revenue.
-                It only takes a few clicks — just paste your API key and we handle
-                the rest.
+                Link your Stripe or Dodo account to start recovering lost
+                revenue. It only takes a few clicks — just paste your API key
+                and we handle the rest.
               </p>
 
               {/* 4. Three feature rows */}
@@ -259,8 +262,8 @@ export default function ConnectPaymentPage() {
                       Secure &amp; Encrypted
                     </h4>
                     <p className="text-xs sm:text-[13px] text-[#6B7280] dark:text-gray-400 mt-0.5">
-                      Your API key is encrypted in transit and at rest — we never store
-                      it in plain text.
+                      Your API key is encrypted in transit and at rest — we
+                      never store it in plain text.
                     </p>
                   </div>
                 </div>
@@ -273,8 +276,8 @@ export default function ConnectPaymentPage() {
                       No Manual Setup
                     </h4>
                     <p className="text-xs sm:text-[13px] text-[#6B7280] dark:text-gray-400 mt-0.5">
-                      Just paste your key and we&apos;ll handle the rest — including
-                      webhook registration.
+                      Just paste your key and we&apos;ll handle the rest —
+                      including webhook registration.
                     </p>
                   </div>
                 </div>
@@ -439,17 +442,23 @@ export default function ConnectPaymentPage() {
 
                 {/* Footer line below card */}
                 <p className="mt-6 text-center text-xs text-[#6B7280] dark:text-gray-400">
-                  🔒 Your credentials are encrypted and never stored on our servers.
+                  🔒 Your credentials are encrypted and never stored on our
+                  servers.
                 </p>
               </Card>
             )}
 
             {/* STEP 2: Automated Progress Screen */}
             {currentStep === 2 && (
-              <Card padding="lg" className="w-full animate-in fade-in zoom-in-95 duration-300">
+              <Card
+                padding="lg"
+                className="w-full animate-in fade-in zoom-in-95 duration-300"
+              >
                 <div className="flex items-center gap-3 mb-2">
                   <IconChip
-                    icon={<Loader2 className="w-4 h-4 animate-spin text-[#6366F1]" />}
+                    icon={
+                      <Loader2 className="w-4 h-4 animate-spin text-[#6366F1]" />
+                    }
                     size="sm"
                   />
                   <h2 className="font-display font-bold text-xl text-[#111827] dark:text-white">
@@ -457,8 +466,8 @@ export default function ConnectPaymentPage() {
                   </h2>
                 </div>
                 <p className="text-xs sm:text-sm text-[#6B7280] dark:text-gray-400 mb-8">
-                  We are automatically setting up event subscriptions and testing the
-                  secure endpoint. Please wait a moment.
+                  We are automatically setting up event subscriptions and
+                  testing the secure endpoint. Please wait a moment.
                 </p>
 
                 {/* Sequential Checklist Animation */}
@@ -470,7 +479,7 @@ export default function ConnectPaymentPage() {
                         "flex items-center justify-between p-4 rounded-xl border transition-all duration-300",
                         item.done
                           ? "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-500/30 text-emerald-800 dark:text-emerald-300"
-                          : "bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 text-[#6B7280] dark:text-gray-400"
+                          : "bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 text-[#6B7280] dark:text-gray-400",
                       )}
                     >
                       <div className="flex items-center gap-3">
@@ -481,7 +490,9 @@ export default function ConnectPaymentPage() {
                         ) : (
                           <div className="w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-700 border-t-[#6366F1] animate-spin" />
                         )}
-                        <span className="text-sm font-medium">{item.label}</span>
+                        <span className="text-sm font-medium">
+                          {item.label}
+                        </span>
                       </div>
                       <span className="text-xs font-semibold">
                         {item.done ? "Completed" : "In progress…"}
@@ -491,7 +502,8 @@ export default function ConnectPaymentPage() {
                 </div>
 
                 <p className="mt-8 text-center text-xs text-[#6B7280] dark:text-gray-400">
-                  Automatic registration in progress • No manual webhook secret needed
+                  Automatic registration in progress • No manual webhook secret
+                  needed
                 </p>
               </Card>
             )}
@@ -518,7 +530,12 @@ export default function ConnectPaymentPage() {
 
                 <div className="mt-8 flex justify-center">
                   <Link href="/dashboard">
-                    <Button variant="primary" size="lg" withArrow className="px-8">
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      withArrow
+                      className="px-8"
+                    >
                       Go to Dashboard
                     </Button>
                   </Link>
