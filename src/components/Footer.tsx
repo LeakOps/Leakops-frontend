@@ -23,11 +23,11 @@ export function Footer() {
             <div className="pt-1 text-xs text-gray-400 flex items-center gap-1.5">
               <span>Questions? Email</span>
               <a
-                href="mailto:support@leakops.com"
+                href="mailto:adityawork0811@gmail.com"
                 className="text-white hover:text-[#818CF8] font-medium underline underline-offset-2 transition-colors inline-flex items-center gap-1"
               >
                 <Mail className="w-3 h-3 inline" />
-                support@leakops.com
+                adityawork0811@gmail.com
               </a>
             </div>
 
