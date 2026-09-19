@@ -8,8 +8,6 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
-  Link2,
-  CheckCircle2,
   RefreshCw,
   Trash2,
   Activity,
@@ -18,7 +16,6 @@ import {
   Menu,
   X,
   AlertCircle,
-  ExternalLink,
 } from "lucide-react";
 
 export default function WebhookSetupPage() {
@@ -34,7 +31,7 @@ export default function WebhookSetupPage() {
     },
   ]);
 
-  const [events, setEvents] = useState<
+  const [events] = useState<
     {
       id: string;
       timestamp: string;
@@ -51,7 +48,9 @@ export default function WebhookSetupPage() {
   };
 
   const handleReconnect = () => {
-    alert("Triggered webhook health check and signature re-verification: Endpoint healthy.");
+    alert(
+      "Triggered webhook health check and signature re-verification: Endpoint healthy.",
+    );
   };
 
   return (
@@ -95,7 +94,8 @@ export default function WebhookSetupPage() {
                 Webhook Configuration
               </h1>
               <p className="text-xs text-[#6B7280] dark:text-gray-400 hidden sm:block">
-                Manage automated webhook listeners and incoming event subscriptions.
+                Manage automated webhook listeners and incoming event
+                subscriptions.
               </p>
             </div>
           </div>
@@ -128,7 +128,11 @@ export default function WebhookSetupPage() {
               </div>
 
               <Link href="/onboarding/connect-payment">
-                <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1.5"
+                >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Connect Another Gateway</span>
                 </Button>
@@ -142,7 +146,8 @@ export default function WebhookSetupPage() {
                   No gateway connected yet
                 </h4>
                 <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1 mb-4">
-                  Connect Stripe or Dodo to begin receiving automated recovery webhooks.
+                  Connect Stripe or Dodo to begin receiving automated recovery
+                  webhooks.
                 </p>
                 <Link href="/onboarding/connect-payment">
                   <Button variant="primary" size="sm" withArrow>
@@ -170,7 +175,10 @@ export default function WebhookSetupPage() {
                         {gw.accountId}
                       </p>
                       <p className="text-[11px] text-[#6B7280] dark:text-gray-500">
-                        Endpoint: <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">{gw.endpointUrl}</code>
+                        Endpoint:{" "}
+                        <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">
+                          {gw.endpointUrl}
+                        </code>
                       </p>
                     </div>
 
@@ -208,7 +216,8 @@ export default function WebhookSetupPage() {
                   Raw Webhook Event Stream
                 </h3>
                 <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-0.5">
-                  Real-time payload receipts (e.g. charge.failed, invoice.payment_failed).
+                  Real-time payload receipts (e.g. charge.failed,
+                  invoice.payment_failed).
                 </p>
               </div>
             </div>
@@ -220,7 +229,9 @@ export default function WebhookSetupPage() {
                     <th className="py-3 px-6 font-semibold">Event Type</th>
                     <th className="py-3 px-6 font-semibold">Gateway</th>
                     <th className="py-3 px-6 font-semibold">Status</th>
-                    <th className="py-3 px-6 font-semibold text-right">Timestamp</th>
+                    <th className="py-3 px-6 font-semibold text-right">
+                      Timestamp
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB] dark:divide-gray-800">
@@ -235,7 +246,15 @@ export default function WebhookSetupPage() {
                             No webhook events logged yet
                           </h4>
                           <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1">
-                            Events like <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">charge.failed</code> or <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">customer.subscription.updated</code> will stream here in real time.
+                            Events like{" "}
+                            <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">
+                              charge.failed
+                            </code>{" "}
+                            or{" "}
+                            <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">
+                              customer.subscription.updated
+                            </code>{" "}
+                            will stream here in real time.
                           </p>
                         </div>
                       </td>
