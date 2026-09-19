@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
   Tag,
@@ -12,7 +11,6 @@ import {
   ChevronDown,
   Menu,
   X,
-  Plus,
   Save,
   CheckCircle2,
 } from "lucide-react";
@@ -118,8 +116,12 @@ export default function CouponsPage() {
                   <tr className="bg-gray-50/70 dark:bg-gray-900/50 border-b border-[#E5E7EB] dark:border-gray-800 text-[#6B7280] dark:text-gray-400 uppercase tracking-wider text-[10px]">
                     <th className="py-3 px-6 font-semibold">Code</th>
                     <th className="py-3 px-6 font-semibold">Times Used</th>
-                    <th className="py-3 px-6 font-semibold">Unique Customers</th>
-                    <th className="py-3 px-6 font-semibold text-right">Flagged Usage</th>
+                    <th className="py-3 px-6 font-semibold">
+                      Unique Customers
+                    </th>
+                    <th className="py-3 px-6 font-semibold text-right">
+                      Flagged Usage
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB] dark:divide-gray-800">
@@ -134,7 +136,8 @@ export default function CouponsPage() {
                             No coupon activity detected yet.
                           </h4>
                           <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1">
-                            Discounts redeemed on your connected gateway will be monitored here.
+                            Discounts redeemed on your connected gateway will be
+                            monitored here.
                           </p>
                         </div>
                       </td>
@@ -168,7 +171,8 @@ export default function CouponsPage() {
                   className="w-full sm:w-48 px-3.5 py-2 bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-800 rounded-lg text-xs sm:text-sm text-[#111827] dark:text-white"
                 />
                 <span className="text-[11px] text-[#6B7280] dark:text-gray-500 mt-1 block">
-                  Flag transaction if the same card fingerprint redeems 2+ promotional codes.
+                  Flag transaction if the same card fingerprint redeems 2+
+                  promotional codes.
                 </span>
               </div>
 
@@ -179,7 +183,8 @@ export default function CouponsPage() {
                       Block Coupon Stacking
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Prevent multiple active discount subscriptions on one customer ID.
+                      Prevent multiple active discount subscriptions on one
+                      customer ID.
                     </p>
                   </div>
                   <input
@@ -196,7 +201,8 @@ export default function CouponsPage() {
                       Cross-Account Reuse Detection
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Detect when unique accounts use matching billing addresses or device fingerprints.
+                      Detect when unique accounts use matching billing addresses
+                      or device fingerprints.
                     </p>
                   </div>
                   <input
