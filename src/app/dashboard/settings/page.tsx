@@ -8,7 +8,6 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
-  Settings,
   User,
   CreditCard,
   Users,
@@ -19,7 +18,6 @@ import {
   X,
   Save,
   CheckCircle2,
-  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +65,7 @@ export default function SettingsPage() {
     { id: "team", label: "Team", icon: Users },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "danger", label: "Danger Zone", icon: AlertTriangle },
-  ];
+  ] as const;
 
   return (
     <div className="min-h-screen bg-[#F5F6FB] dark:bg-[#0B0F19] text-[#111827] dark:text-[#F9FAFB] flex transition-colors">
@@ -110,7 +108,8 @@ export default function SettingsPage() {
                 Account Settings
               </h1>
               <p className="text-xs text-[#6B7280] dark:text-gray-400 hidden sm:block">
-                Manage your personal profile, team access, alerts, and subscription.
+                Manage your personal profile, team access, alerts, and
+                subscription.
               </p>
             </div>
           </div>
@@ -138,12 +137,12 @@ export default function SettingsPage() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id)}
                   className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer",
                     isActive
                       ? "bg-white dark:bg-[#111827] text-[#111827] dark:text-white shadow-2xs font-semibold border border-[#E5E7EB] dark:border-gray-700"
-                      : "text-[#6B7280] dark:text-gray-400 hover:text-[#111827] dark:hover:text-white"
+                      : "text-[#6B7280] dark:text-gray-400 hover:text-[#111827] dark:hover:text-white",
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -230,7 +229,8 @@ export default function SettingsPage() {
                       Growth Plan ($49/month)
                     </h3>
                     <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1">
-                      Tracks up to $25k recovered revenue per month with advanced recovery rules.
+                      Tracks up to $25k recovered revenue per month with
+                      advanced recovery rules.
                     </p>
                   </div>
                   <div className="flex items-center gap-2.5">
@@ -263,10 +263,14 @@ export default function SettingsPage() {
                 Team Members
               </h3>
               <p className="text-xs text-[#6B7280] dark:text-gray-400 mb-6">
-                Invite team members to monitor payment recovery and configure webhooks.
+                Invite team members to monitor payment recovery and configure
+                webhooks.
               </p>
 
-              <form onSubmit={handleInvite} className="flex gap-3 max-w-md mb-8">
+              <form
+                onSubmit={handleInvite}
+                className="flex gap-3 max-w-md mb-8"
+              >
                 <input
                   type="email"
                   required
@@ -282,7 +286,10 @@ export default function SettingsPage() {
 
               <div className="divide-y divide-[#E5E7EB] dark:divide-gray-800 border-t border-[#E5E7EB] dark:border-gray-800 pt-2">
                 {teamMembers.map((member, i) => (
-                  <div key={i} className="py-3.5 flex items-center justify-between">
+                  <div
+                    key={i}
+                    className="py-3.5 flex items-center justify-between"
+                  >
                     <div>
                       <p className="font-semibold text-sm text-[#111827] dark:text-white">
                         {member.name}
@@ -291,7 +298,9 @@ export default function SettingsPage() {
                         {member.email}
                       </p>
                     </div>
-                    <Badge variant={member.role === "Owner" ? "indigo" : "neutral"}>
+                    <Badge
+                      variant={member.role === "Owner" ? "indigo" : "neutral"}
+                    >
                       {member.role}
                     </Badge>
                   </div>
@@ -307,7 +316,8 @@ export default function SettingsPage() {
                 Alert Preferences
               </h3>
               <p className="text-xs text-[#6B7280] dark:text-gray-400 mb-6">
-                Choose how and when you want to be alerted about revenue recovery events.
+                Choose how and when you want to be alerted about revenue
+                recovery events.
               </p>
 
               <div className="space-y-4 max-w-xl">
@@ -317,7 +327,8 @@ export default function SettingsPage() {
                       Instant Failed Payment Alerts
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Receive an immediate email notification when a high-value charge fails.
+                      Receive an immediate email notification when a high-value
+                      charge fails.
                     </p>
                   </div>
                   <input
@@ -334,7 +345,8 @@ export default function SettingsPage() {
                       SMS Escalation Notifications
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Send urgent alerts to founder phone when customer reaches final dunning step.
+                      Send urgent alerts to founder phone when customer reaches
+                      final dunning step.
                     </p>
                   </div>
                   <input
@@ -351,7 +363,8 @@ export default function SettingsPage() {
                       Weekly Revenue Digest
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Summary of recovered revenue, saved customers, and coupon flags.
+                      Summary of recovered revenue, saved customers, and coupon
+                      flags.
                     </p>
                   </div>
                   <input
@@ -367,12 +380,16 @@ export default function SettingsPage() {
 
           {/* Tab 5: Danger Zone */}
           {activeTab === "danger" && (
-            <Card padding="lg" className="border-rose-200 dark:border-rose-950/60">
+            <Card
+              padding="lg"
+              className="border-rose-200 dark:border-rose-950/60"
+            >
               <h3 className="font-display font-bold text-base text-rose-600 mb-2">
                 Danger Zone
               </h3>
               <p className="text-xs text-[#6B7280] dark:text-gray-400 mb-6">
-                Irreversible actions related to your account and payment gateways.
+                Irreversible actions related to your account and payment
+                gateways.
               </p>
 
               <div className="space-y-4">
@@ -382,7 +399,8 @@ export default function SettingsPage() {
                       Disconnect All Gateways
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Stops listening to payment events and deactivates automated dunning.
+                      Stops listening to payment events and deactivates
+                      automated dunning.
                     </p>
                   </div>
                   <Button
@@ -401,13 +419,18 @@ export default function SettingsPage() {
                       Delete Account
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Permanently delete your LeakOps account and all associated recovery logs.
+                      Permanently delete your LeakOps account and all associated
+                      recovery logs.
                     </p>
                   </div>
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() => confirm("Are you sure you want to permanently delete your account?")}
+                    onClick={() =>
+                      confirm(
+                        "Are you sure you want to permanently delete your account?",
+                      )
+                    }
                   >
                     Delete Account
                   </Button>
