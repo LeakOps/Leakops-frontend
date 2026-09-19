@@ -6,7 +6,6 @@ import { Sidebar } from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card } from "@/components/ui/Card";
 import { StatCard } from "@/components/ui/StatCard";
-import { Button } from "@/components/ui/Button";
 import {
   BarChart2,
   Calendar,
@@ -73,7 +72,8 @@ export default function AnalyticsPage() {
                 Revenue Analytics
               </h1>
               <p className="text-xs text-[#6B7280] dark:text-gray-400 hidden sm:block">
-                Deep dive into recovered MRR, cohort salvage rates, and decline trends.
+                Deep dive into recovered MRR, cohort salvage rates, and decline
+                trends.
               </p>
             </div>
           </div>
@@ -169,18 +169,23 @@ export default function AnalyticsPage() {
                   Revenue Recovery vs. Failed Billings Trend
                 </h3>
                 <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-0.5">
-                  Daily comparison across the selected timeframe ({selectedRange}).
+                  Daily comparison across the selected timeframe (
+                  {selectedRange}).
                 </p>
               </div>
 
               <div className="flex items-center gap-4 text-xs font-medium">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
-                  <span className="text-[#6B7280] dark:text-gray-300">Recovered ($)</span>
+                  <span className="text-[#6B7280] dark:text-gray-300">
+                    Recovered ($)
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#6366F1]" />
-                  <span className="text-[#6B7280] dark:text-gray-300">Failed ($)</span>
+                  <span className="text-[#6B7280] dark:text-gray-300">
+                    Failed ($)
+                  </span>
                 </div>
               </div>
             </div>
@@ -207,8 +212,23 @@ export default function AnalyticsPage() {
                 preserveAspectRatio="none"
                 viewBox="0 0 100 100"
               >
-                <line x1="0" y1="98" x2="100" y2="98" stroke="#10B981" strokeWidth="2.5" />
-                <line x1="0" y1="98" x2="100" y2="98" stroke="#6366F1" strokeWidth="2.5" strokeDasharray="2 3" />
+                <line
+                  x1="0"
+                  y1="98"
+                  x2="100"
+                  y2="98"
+                  stroke="#10B981"
+                  strokeWidth="2.5"
+                />
+                <line
+                  x1="0"
+                  y1="98"
+                  x2="100"
+                  y2="98"
+                  stroke="#6366F1"
+                  strokeWidth="2.5"
+                  strokeDasharray="2 3"
+                />
               </svg>
 
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/75 dark:bg-[#111827]/75 backdrop-blur-[2px] rounded-xl text-center p-6 z-10">
@@ -238,7 +258,10 @@ export default function AnalyticsPage() {
 
               <div className="h-44 flex items-center justify-center text-center">
                 <div className="relative w-28 h-28 flex items-center justify-center">
-                  <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                  <svg
+                    viewBox="0 0 100 100"
+                    className="w-full h-full -rotate-90"
+                  >
                     <circle
                       cx="50"
                       cy="50"
