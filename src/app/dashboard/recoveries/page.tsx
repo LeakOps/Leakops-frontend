@@ -5,26 +5,20 @@ import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import {
-  RefreshCw,
-  Search,
-  Filter,
-  Download,
-  Calendar,
-  ChevronDown,
-  Menu,
-  X,
-  Inbox,
-} from "lucide-react";
+import { Search, Download, ChevronDown, Menu, X, Inbox } from "lucide-react";
 
 interface RecoveryItem {
   id: string;
   customerName: string;
   customerEmail: string;
   amount: string;
-  reason: "Insufficient Funds" | "Card Expired" | "Fraud Protection" | "Customer Update" | "Other";
+  reason:
+    | "Insufficient Funds"
+    | "Card Expired"
+    | "Fraud Protection"
+    | "Customer Update"
+    | "Other";
   date: string;
 }
 
@@ -192,7 +186,8 @@ export default function RecoveriesPage() {
                             No recoveries yet
                           </h3>
                           <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1 mb-5">
-                            Once payments are recovered, they&apos;ll show up here with full event logs.
+                            Once payments are recovered, they&apos;ll show up
+                            here with full event logs.
                           </p>
                           <Link href="/onboarding/connect-payment">
                             <Button variant="primary" size="sm" withArrow>
