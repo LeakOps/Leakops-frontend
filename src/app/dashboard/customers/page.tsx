@@ -7,17 +7,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import {
-  Users,
-  Search,
-  ChevronDown,
-  Menu,
-  X,
-  Clock,
-  CreditCard,
-  ArrowRight,
-  ExternalLink,
-} from "lucide-react";
+import { Users, Search, ChevronDown, Menu, X, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CustomerRecord {
@@ -41,7 +31,8 @@ export default function CustomersPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null);
+  const [selectedCustomer, setSelectedCustomer] =
+    useState<CustomerRecord | null>(null);
 
   // Since this is a fresh account without live webhook events, customers list defaults to empty state
   const customers: CustomerRecord[] = [];
@@ -138,21 +129,23 @@ export default function CustomersPage() {
 
             {/* Status Filter Tabs */}
             <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-gray-800 rounded-xl shadow-2xs overflow-x-auto text-xs">
-              {["All", "Active", "At Risk", "Recovered", "Churned"].map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setStatusFilter(tab)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg font-medium transition-colors whitespace-nowrap",
-                    statusFilter === tab
-                      ? "bg-[#111827] dark:bg-white text-white dark:text-[#111827] shadow-2xs"
-                      : "text-[#6B7280] dark:text-gray-400 hover:text-[#111827] dark:hover:text-white"
-                  )}
-                >
-                  {tab}
-                </button>
-              ))}
+              {["All", "Active", "At Risk", "Recovered", "Churned"].map(
+                (tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setStatusFilter(tab)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg font-medium transition-colors whitespace-nowrap",
+                      statusFilter === tab
+                        ? "bg-[#111827] dark:bg-white text-white dark:text-[#111827] shadow-2xs"
+                        : "text-[#6B7280] dark:text-gray-400 hover:text-[#111827] dark:hover:text-white",
+                    )}
+                  >
+                    {tab}
+                  </button>
+                ),
+              )}
             </div>
           </div>
 
@@ -166,7 +159,9 @@ export default function CustomersPage() {
                     <th className="py-3 px-6 font-semibold">Plan</th>
                     <th className="py-3 px-6 font-semibold">Lifetime Value</th>
                     <th className="py-3 px-6 font-semibold">Status</th>
-                    <th className="py-3 px-6 font-semibold text-right">Last Payment</th>
+                    <th className="py-3 px-6 font-semibold text-right">
+                      Last Payment
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB] dark:divide-gray-800">
@@ -181,7 +176,8 @@ export default function CustomersPage() {
                             No customers yet
                           </h3>
                           <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1 mb-5">
-                            Once you connect a payment provider, they&apos;ll show up here.
+                            Once you connect a payment provider, they&apos;ll
+                            show up here.
                           </p>
                           <Link href="/onboarding/connect-payment">
                             <Button variant="primary" size="sm" withArrow>
@@ -225,10 +221,10 @@ export default function CustomersPage() {
                               c.status === "Active"
                                 ? "success"
                                 : c.status === "Recovered"
-                                ? "indigo"
-                                : c.status === "At Risk"
-                                ? "warning"
-                                : "danger"
+                                  ? "indigo"
+                                  : c.status === "At Risk"
+                                    ? "warning"
+                                    : "danger"
                             }
                             dot
                           >
