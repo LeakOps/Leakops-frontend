@@ -1,11 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { ArrowLeft, BookOpen, Clock } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react";
 
 interface PageProps {
   params: Promise<{
@@ -30,7 +29,9 @@ export async function generateStaticParams() {
 
 export default async function ResourceGuidePage({ params }: PageProps) {
   const { slug } = await params;
-  const title = titles[slug] || slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const title =
+    titles[slug] ||
+    slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0B0F19] text-[#111827] dark:text-[#F9FAFB] flex flex-col transition-colors selection:bg-[#6366F1] selection:text-white">
@@ -39,7 +40,10 @@ export default async function ResourceGuidePage({ params }: PageProps) {
       <main className="flex-1 max-w-4xl w-full mx-auto px-6 sm:px-10 pt-12 pb-24">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-[#6B7280] dark:text-gray-400 mb-8">
-          <Link href="/resources" className="hover:text-[#111827] dark:hover:text-white">
+          <Link
+            href="/resources"
+            className="hover:text-[#111827] dark:hover:text-white"
+          >
             Resources
           </Link>
           <span>/</span>
@@ -74,8 +78,8 @@ export default async function ResourceGuidePage({ params }: PageProps) {
           </h2>
 
           <p className="text-xs sm:text-sm text-[#6B7280] dark:text-gray-400 max-w-md mx-auto leading-relaxed mb-8">
-            We are actively preparing detailed, step-by-step walkthroughs and best
-            practices for this topic.
+            We are actively preparing detailed, step-by-step walkthroughs and
+            best practices for this topic.
           </p>
 
           <Link href="/resources">
