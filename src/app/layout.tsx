@@ -18,11 +18,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "LeakOps — SaaS Revenue-Leak Recovery",
+  title: "LeakOps — Payment Recovery Infrastructure for SaaS",
   description:
     "Recover lost revenue from failed payments, dunning, proration errors, coupon abuse and more automatically.",
   icons: {
-    icon: "/favicon.png",
+    icon: {
+      url: "/favicon.png",
+      type: "image/png",
+    },
     shortcut: "/favicon.png",
     apple: "/favicon.png",
   },
