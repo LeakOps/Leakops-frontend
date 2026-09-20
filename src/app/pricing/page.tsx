@@ -154,13 +154,10 @@ export default function PricingPage() {
         "Coupon leakage detection",
         "Trial-conversion leakage detection",
         "Advanced analytics",
-      ],
-      excluded: [
         "Multiple payment accounts",
-        "Dedicated account manager",
-        "SLA and uptime guarantees",
         "Custom integrations",
       ],
+      excluded: ["Dedicated account manager", "SLA and uptime guarantees"],
       ctaText: "Get Started",
       ctaVariant: "primary" as const,
       isHighlighted: true, // Most Popular
@@ -178,12 +175,11 @@ export default function PricingPage() {
         "Advanced reporting",
         "Multiple payment accounts",
         "Priority support",
-      ],
-      excluded: [
         "Dedicated account manager",
         "SLA and uptime guarantees",
         "Custom integrations and features",
       ],
+      excluded: [],
       ctaText: "Get Started",
       ctaVariant: "outline" as const,
       isHighlighted: false,

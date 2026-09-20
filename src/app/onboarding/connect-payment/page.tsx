@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/Button";
@@ -31,7 +32,8 @@ type Step = 1 | 2 | 3;
 type Provider = "stripe" | "dodo";
 
 export default function ConnectPaymentPage() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
     null,
@@ -40,6 +42,12 @@ export default function ConnectPaymentPage() {
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [connectError, setConnectError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   // Automated progress screen state for Step 2
   const [progressItems, setProgressItems] = useState([

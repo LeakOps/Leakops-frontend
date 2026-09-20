@@ -15,10 +15,7 @@ interface NavbarProps {
   userName?: string;
 }
 
-export function Navbar({
-  variant = "landing",
-  userName,
-}: NavbarProps) {
+export function Navbar({ variant = "landing", userName }: NavbarProps) {
   const pathname = usePathname();
   const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -28,6 +25,9 @@ export function Navbar({
   const displayEmail = user?.email || "";
   const avatarUrl = user?.profile_picture_url;
   const initial = displayName.charAt(0).toUpperCase() || "U";
+  const connectGatewayHref = isAuthenticated
+    ? "/onboarding/connect-payment"
+    : "/login";
 
   return (
     <header className="sticky top-0 z-40 w-full h-[76px] px-6 sm:px-10 bg-white/90 dark:bg-[#0B0F19]/90 backdrop-blur-md border-b border-[#E5E7EB] dark:border-gray-800 transition-colors">
@@ -57,7 +57,7 @@ export function Navbar({
                   "text-[15px] font-medium hover:text-[#111827] dark:hover:text-white transition-colors",
                   pathname.startsWith("/resources")
                     ? "text-[#6366F1] font-semibold"
-                    : "text-[#6B7280] dark:text-gray-400"
+                    : "text-[#6B7280] dark:text-gray-400",
                 )}
               >
                 Resources
@@ -68,7 +68,7 @@ export function Navbar({
                   "text-[15px] font-medium hover:text-[#111827] dark:hover:text-white transition-colors",
                   pathname === "/about"
                     ? "text-[#6366F1] font-semibold"
-                    : "text-[#6B7280] dark:text-gray-400"
+                    : "text-[#6B7280] dark:text-gray-400",
                 )}
               >
                 About
@@ -84,47 +84,59 @@ export function Navbar({
               href="/dashboard"
               className={cn(
                 "hover:text-[#111827] dark:hover:text-white transition-colors",
-                pathname === "/dashboard" && "text-[#6366F1] font-semibold"
+                pathname === "/dashboard" && "text-[#6366F1] font-semibold",
               )}
             >
               Dashboard
             </Link>
-            <span className="text-gray-300 dark:text-gray-700 select-none">·</span>
+            <span className="text-gray-300 dark:text-gray-700 select-none">
+              ·
+            </span>
             <Link
               href="/dashboard/customers"
               className={cn(
                 "hover:text-[#111827] dark:hover:text-white transition-colors",
-                pathname === "/dashboard/customers" && "text-[#6366F1] font-semibold"
+                pathname === "/dashboard/customers" &&
+                  "text-[#6366F1] font-semibold",
               )}
             >
               Customers
             </Link>
-            <span className="text-gray-300 dark:text-gray-700 select-none">·</span>
+            <span className="text-gray-300 dark:text-gray-700 select-none">
+              ·
+            </span>
             <Link
               href="/dashboard/recoveries"
               className={cn(
                 "hover:text-[#111827] dark:hover:text-white transition-colors",
-                pathname === "/dashboard/recoveries" && "text-[#6366F1] font-semibold"
+                pathname === "/dashboard/recoveries" &&
+                  "text-[#6366F1] font-semibold",
               )}
             >
               Recoveries
             </Link>
-            <span className="text-gray-300 dark:text-gray-700 select-none">·</span>
+            <span className="text-gray-300 dark:text-gray-700 select-none">
+              ·
+            </span>
             <Link
               href="/dashboard/coupons"
               className={cn(
                 "hover:text-[#111827] dark:hover:text-white transition-colors",
-                pathname === "/dashboard/coupons" && "text-[#6366F1] font-semibold"
+                pathname === "/dashboard/coupons" &&
+                  "text-[#6366F1] font-semibold",
               )}
             >
               Coupons
             </Link>
-            <span className="text-gray-300 dark:text-gray-700 select-none">·</span>
+            <span className="text-gray-300 dark:text-gray-700 select-none">
+              ·
+            </span>
             <Link
               href="/dashboard/analytics"
               className={cn(
                 "hover:text-[#111827] dark:hover:text-white transition-colors",
-                pathname === "/dashboard/analytics" && "text-[#6366F1] font-semibold"
+                pathname === "/dashboard/analytics" &&
+                  "text-[#6366F1] font-semibold",
               )}
             >
               Analytics
@@ -137,6 +149,11 @@ export function Navbar({
           <div className="hidden sm:flex items-center gap-4">
             <ThemeToggle />
             <div className="flex items-center gap-3">
+              <Link href={connectGatewayHref}>
+                <Button variant="primary" size="md">
+                  Connect Gateway
+                </Button>
+              </Link>
               <Link href="/login">
                 <Button variant="outline" size="md">
                   Sign In
@@ -152,6 +169,13 @@ export function Navbar({
         ) : (
           <div className="flex items-center gap-4">
             <ThemeToggle />
+            {variant === "landing" && (
+              <Link href={connectGatewayHref} className="hidden sm:block">
+                <Button variant="primary" size="md">
+                  Connect Gateway
+                </Button>
+              </Link>
+            )}
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -244,7 +268,11 @@ export function Navbar({
             className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-none"
             aria-label="Toggle navigation"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
       </div>
@@ -282,6 +310,16 @@ export function Navbar({
           </Link>
           {isAuthenticated ? (
             <div className="pt-2 flex flex-col gap-2.5">
+              {variant === "landing" && (
+                <Link
+                  href={connectGatewayHref}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button variant="primary" className="w-full">
+                    Connect Gateway
+                  </Button>
+                </Link>
+              )}
               <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="outline" className="w-full">
                   Dashboard
@@ -300,12 +338,25 @@ export function Navbar({
             </div>
           ) : (
             <div className="pt-2 flex flex-col gap-2.5">
+              {variant === "landing" && (
+                <Link
+                  href={connectGatewayHref}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button variant="primary" className="w-full">
+                    Connect Gateway
+                  </Button>
+                </Link>
+              )}
               <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="outline" className="w-full">
                   Sign In
                 </Button>
               </Link>
-              <Link href="/login?tab=signup" onClick={() => setMobileMenuOpen(false)}>
+              <Link
+                href="/login?tab=signup"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <Button variant="primary" className="w-full">
                   Get Started
                 </Button>
