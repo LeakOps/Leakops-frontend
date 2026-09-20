@@ -22,7 +22,7 @@ function CallbackContent() {
     }
 
     if (!token) {
-      setError('No authentication token received.');
+      router.replace('/login');
       return;
     }
 
@@ -78,3 +78,4 @@ export default function AuthCallbackPage() {
     </Suspense>
   );
 }
+
