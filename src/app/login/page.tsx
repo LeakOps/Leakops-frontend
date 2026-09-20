@@ -19,21 +19,61 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { api } from "@/lib/api";
+import { User, AlertCircle, Loader2 } from "lucide-react";
 
 function AuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login, signup, isAuthenticated } = useAuth();
   const initialTab = searchParams.get("tab") === "signup" ? "signup" : "signin";
 
   const [activeTab, setActiveTab] = useState<"signin" | "signup">(initialTab);
   const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Redirect to onboarding connect payment
-    router.push("/onboarding/connect-payment");
+    setError(null);
+    setLoading(true);
+
+    try {
+      if (activeTab === "signin") {
+        await login({ email, password });
+        router.push("/dashboard");
+      } else {
+        if (!name.trim()) {
+          setError("Please enter your name");
+          setLoading(false);
+          return;
+        }
+        await signup({ name, email, password });
+        router.push("/onboarding/connect-payment");
+      }
+    } catch (err: any) {
+      setError(err.message || "Authentication failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleAuth = () => {
+    window.location.href = api.getGoogleAuthUrl();
+  };
+
+  const handleGithubAuth = () => {
+    window.location.href = api.getGithubAuthUrl();
   };
 
   return (
@@ -247,9 +287,39 @@ function AuthContent() {
             </button>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-400">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* 4. Field group: Email address */}
+            {/* Full Name field for signup */}
+            {activeTab === "signup" && (
+              <div>
+                <label className="block text-xs font-medium text-[#111827] dark:text-gray-200 mb-1.5">
+                  Full name
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6B7280] dark:text-gray-400">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your full name"
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-lg text-sm text-[#111827] dark:text-white placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Field group: Email address */}
             <div>
               <label className="block text-xs font-medium text-[#111827] dark:text-gray-200 mb-1.5">
                 Email address
@@ -269,17 +339,16 @@ function AuthContent() {
               </div>
             </div>
 
-            {/* 5. Field group: Password */}
+            {/* Field group: Password */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-medium text-[#111827] dark:text-gray-200">
                   Password
                 </label>
-                {/* 6. Right-aligned small link */}
                 {activeTab === "signin" && (
                   <button
                     type="button"
-                    onClick={() => alert("Password reset link will be sent to your email.")}
+                    onClick={() => alert("Please contact support to reset your password.")}
                     className="text-xs text-[#6366F1] hover:underline font-medium"
                   >
                     Forgot your password?
@@ -313,20 +382,30 @@ function AuthContent() {
               </div>
             </div>
 
-            {/* 7. Full-width primary black button */}
+            {/* Submit button */}
             <div className="pt-2">
               <Button
                 type="submit"
                 variant="primary"
-                withArrow
+                disabled={loading}
+                withArrow={!loading}
                 className="w-full py-3"
               >
-                {activeTab === "signin" ? "Sign In" : "Sign Up"}
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Please wait...
+                  </span>
+                ) : activeTab === "signin" ? (
+                  "Sign In"
+                ) : (
+                  "Sign Up"
+                )}
               </Button>
             </div>
           </form>
 
-          {/* 8. Divider with centered small text */}
+          {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-[#E5E7EB] dark:border-gray-800" />
@@ -338,15 +417,14 @@ function AuthContent() {
             </div>
           </div>
 
-          {/* 9. Two full-width outline buttons stacked */}
+          {/* Social Auth Buttons */}
           <div className="space-y-2.5">
             {/* Continue with Google */}
             <button
               type="button"
-              onClick={() => router.push("/onboarding/connect-payment")}
+              onClick={handleGoogleAuth}
               className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-lg border border-[#E5E7EB] dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-medium text-[#111827] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-2xs cursor-pointer"
             >
-              {/* Google multicolor G icon */}
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
@@ -371,10 +449,9 @@ function AuthContent() {
             {/* Continue with GitHub */}
             <button
               type="button"
-              onClick={() => router.push("/onboarding/connect-payment")}
+              onClick={handleGithubAuth}
               className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-lg border border-[#E5E7EB] dark:border-gray-700 bg-white dark:bg-gray-900 text-sm font-medium text-[#111827] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-2xs cursor-pointer"
             >
-              {/* GitHub mark icon */}
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                 <path
                   fillRule="evenodd"
