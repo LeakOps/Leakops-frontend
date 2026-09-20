@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Users, Search, ChevronDown, Menu, X, CreditCard } from "lucide-react";
+import { api, DashboardPayment } from "@/lib/api";
+import { Users, Search, ChevronDown, Menu, X, CreditCard, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CustomerRecord {
@@ -33,9 +34,55 @@ export default function CustomersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [selectedCustomer, setSelectedCustomer] =
     useState<CustomerRecord | null>(null);
+  const [customers, setCustomers] = useState<CustomerRecord[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Since this is a fresh account without live webhook events, customers list defaults to empty state
-  const customers: CustomerRecord[] = [];
+  useEffect(() => {
+    async function loadCustomers() {
+      try {
+        setLoading(true);
+        const res = await api.getDashboardPayments();
+        const payments: DashboardPayment[] = res.payments || [];
+        const customerMap = new Map<string, CustomerRecord>();
+
+        payments.forEach((p) => {
+          const key = p.customer_email || p.id;
+          if (!customerMap.has(key)) {
+            customerMap.set(key, {
+              id: p.id,
+              name: p.customer_name || "Customer",
+              email: p.customer_email || "—",
+              plan: "Standard",
+              ltv: `$${(p.amount_cents / 100).toFixed(2)}`,
+              status:
+                p.status === "recovered"
+                  ? "Recovered"
+                  : p.status === "failed"
+                  ? "Churned"
+                  : "At Risk",
+              lastPaymentDate: new Date(p.created_at).toLocaleDateString(),
+              paymentMethod: "Credit Card",
+              history: [
+                {
+                  date: new Date(p.created_at).toLocaleDateString(),
+                  amount: `$${(p.amount_cents / 100).toFixed(2)}`,
+                  event: `Payment ${p.status}`,
+                  status: p.status === "recovered" ? "recovered" : "failed",
+                },
+              ],
+            });
+          }
+        });
+
+        setCustomers(Array.from(customerMap.values()));
+      } catch (err) {
+        console.error("Failed to load customer list:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadCustomers();
+  }, []);
 
   const filteredCustomers = customers.filter((c) => {
     const matchesSearch =
@@ -52,62 +99,13 @@ export default function CustomersPage() {
         <Sidebar activeItem="Customers" />
       </div>
 
-      {/* Mobile Drawer Sidebar */}
-      {mobileSidebarOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-xs"
-            onClick={() => setMobileSidebarOpen(false)}
-          />
-          <div className="relative z-10 w-[270px] bg-white dark:bg-[#0B0F19] h-full shadow-2xl flex flex-col">
-            <div className="p-4 flex justify-end">
-              <button
-                onClick={() => setMobileSidebarOpen(false)}
-                className="p-1 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <Sidebar activeItem="Customers" className="w-full border-r-0" />
-          </div>
-        </div>
-      )}
-
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        {/* Top bar */}
-        <header className="h-[76px] px-6 sm:px-8 bg-white dark:bg-[#0B0F19] border-b border-[#E5E7EB] dark:border-gray-800 flex items-center justify-between sticky top-0 z-30 transition-colors">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="font-display font-bold text-lg sm:text-xl text-[#111827] dark:text-white">
-                Customers
-              </h1>
-              <p className="text-xs text-[#6B7280] dark:text-gray-400 hidden sm:block">
-                Directory of customers seen across your connected gateways.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <div className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm">
-                A
-              </div>
-              <span className="hidden xl:inline-block text-xs font-semibold text-[#111827] dark:text-gray-200">
-                Alex Morgan
-              </span>
-              <ChevronDown className="w-3 h-3 text-[#6B7280] dark:text-gray-400 hidden xl:block" />
-            </div>
-          </div>
-        </header>
+        <DashboardHeader
+          title="Customers"
+          subtitle="Directory of customers seen across your connected gateways."
+          onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
+        />
 
         {/* Body content */}
         <main className="p-6 sm:p-8 space-y-6 max-w-7xl w-full">
