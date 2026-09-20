@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/lib/auth";
+import { api, GatewayAccount } from "@/lib/api";
 import {
   RefreshCw,
   Trash2,
@@ -16,20 +18,16 @@ import {
   Menu,
   X,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 
 export default function WebhookSetupPage() {
+  const { user } = useAuth();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [gateways, setGateways] = useState([
-    {
-      id: "stripe-primary",
-      provider: "Stripe",
-      accountId: "acct_1Ox...99z",
-      status: "Connected",
-      lastPing: "Just now",
-      endpointUrl: "https://api.leakops.com/webhook/stripe/gw_91a0c4f8",
-    },
-  ]);
+  const [gateways, setGateways] = useState<GatewayAccount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const [events] = useState<
     {
@@ -41,16 +39,38 @@ export default function WebhookSetupPage() {
     }[]
   >([]);
 
-  const handleDisconnect = (id: string) => {
-    if (confirm("Are you sure you want to disconnect this gateway webhook?")) {
+  const loadGateways = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await api.getGateways();
+      setGateways(res.gateways || []);
+    } catch (err: any) {
+      setError(err.message || "Failed to load connected gateways");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadGateways();
+  }, [loadGateways]);
+
+  const handleDisconnect = async (id: string) => {
+    if (!confirm("Are you sure you want to disconnect this gateway webhook?")) return;
+    try {
+      setActionLoading(id);
+      await api.disconnectGateway(id);
       setGateways((prev) => prev.filter((g) => g.id !== id));
+    } catch (err: any) {
+      alert(err.message || "Failed to disconnect gateway");
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleReconnect = () => {
-    alert(
-      "Triggered webhook health check and signature re-verification: Endpoint healthy.",
-    );
+    loadGateways();
   };
 
   return (
@@ -102,15 +122,26 @@ export default function WebhookSetupPage() {
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <div className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm">
-                A
-              </div>
+            <Link
+              href="/dashboard/settings"
+              className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+            >
+              {user?.profile_picture_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={user.profile_picture_url}
+                  alt={user?.name || "Account"}
+                  className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm">
+                  {(user?.name || "A").charAt(0).toUpperCase()}
+                </div>
+              )}
               <span className="hidden xl:inline-block text-xs font-semibold text-[#111827] dark:text-gray-200">
-                Alex Morgan
+                {user?.name || "Account"}
               </span>
-              <ChevronDown className="w-3 h-3 text-[#6B7280] dark:text-gray-400 hidden xl:block" />
-            </div>
+            </Link>
           </div>
         </header>
 
@@ -139,7 +170,19 @@ export default function WebhookSetupPage() {
               </Link>
             </div>
 
-            {gateways.length === 0 ? (
+            {loading ? (
+              <div className="py-12 flex flex-col items-center justify-center text-center">
+                <Loader2 className="w-6 h-6 animate-spin text-[#6366F1] mb-2" />
+                <p className="text-xs text-[#6B7280] dark:text-gray-400">Loading gateways…</p>
+              </div>
+            ) : error ? (
+              <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 text-center">
+                <p className="text-xs text-red-600 dark:text-red-400 mb-2">{error}</p>
+                <Button variant="outline" size="sm" onClick={loadGateways}>
+                  Retry
+                </Button>
+              </div>
+            ) : gateways.length === 0 ? (
               <div className="py-10 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
                 <AlertCircle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
                 <h4 className="font-semibold text-sm text-[#111827] dark:text-white">
@@ -157,53 +200,60 @@ export default function WebhookSetupPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {gateways.map((gw) => (
-                  <div
-                    key={gw.id}
-                    className="p-5 rounded-xl border border-[#E5E7EB] dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2.5">
-                        <span className="font-display font-bold text-base text-[#111827] dark:text-white">
-                          {gw.provider}
-                        </span>
-                        <Badge variant="success" dot>
-                          {gw.status}
-                        </Badge>
+                {gateways.map((gw) => {
+                  const providerName = gw.gateway_type === "dodo" ? "Dodo Payments" : "Stripe";
+                  return (
+                    <div
+                      key={gw.id}
+                      className="p-5 rounded-xl border border-[#E5E7EB] dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2.5">
+                          <span className="font-display font-bold text-base text-[#111827] dark:text-white">
+                            {providerName}
+                          </span>
+                          <Badge variant={gw.is_active ? "success" : "neutral"} dot>
+                            {gw.is_active ? "Connected" : "Inactive"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-[#6B7280] dark:text-gray-400 font-mono">
+                          API Key: •••• {gw.last_four || "••••"}
+                        </p>
+                        {gw.connected_at && (
+                          <p className="text-[11px] text-[#6B7280] dark:text-gray-500">
+                            Connected on: {new Date(gw.connected_at).toLocaleDateString()}
+                          </p>
+                        )}
                       </div>
-                      <p className="text-xs text-[#6B7280] dark:text-gray-400 font-mono">
-                        {gw.accountId}
-                      </p>
-                      <p className="text-[11px] text-[#6B7280] dark:text-gray-500">
-                        Endpoint:{" "}
-                        <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">
-                          {gw.endpointUrl}
-                        </code>
-                      </p>
-                    </div>
 
-                    <div className="flex items-center gap-2.5">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleReconnect}
-                        className="flex items-center gap-1 text-xs"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                        <span>Reconnect</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDisconnect(gw.id)}
-                        className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Disconnect</span>
-                      </Button>
+                      <div className="flex items-center gap-2.5">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleReconnect}
+                          className="flex items-center gap-1 text-xs"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          <span>Refresh</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={actionLoading === gw.id}
+                          onClick={() => handleDisconnect(gw.id)}
+                          className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                        >
+                          {actionLoading === gw.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-3.5 h-3.5" />
+                          )}
+                          <span>Disconnect</span>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </Card>
