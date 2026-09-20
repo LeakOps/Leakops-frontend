@@ -1,10 +1,15 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { IconChip } from "@/components/ui/IconChip";
+import { useAuth } from "@/lib/auth";
+import { api } from "@/lib/api";
 import {
   Tag,
   Check,
@@ -12,10 +17,74 @@ import {
   Shield,
   CreditCard,
   Headphones,
+  Loader2,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function PricingPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [enterpriseModal, setEnterpriseModal] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+  const [salesMessage, setSalesMessage] = useState("");
+  const [salesSuccess, setSalesSuccess] = useState(false);
+  const [salesSubmitting, setSalesSubmitting] = useState(false);
+
+  const handlePlanSelect = async (planName: string) => {
+    if (planName === "Free Trial") {
+      router.push(isAuthenticated ? "/onboarding/connect-payment" : "/login?tab=signup");
+      return;
+    }
+
+    if (planName === "Enterprise") {
+      if (!isAuthenticated) {
+        router.push("/login?tab=signup");
+        return;
+      }
+      setEnterpriseModal(true);
+      return;
+    }
+
+    if (!isAuthenticated) {
+      router.push("/login?tab=signup");
+      return;
+    }
+
+    const planKey = planName.toLowerCase() as "starter" | "growth" | "scale";
+    try {
+      setLoadingPlan(planName);
+      const res = await api.createCheckout(planKey);
+      if (res.checkout_url) {
+        window.location.href = res.checkout_url;
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to initialize checkout session");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  const handleContactSales = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!companyName.trim()) return;
+    try {
+      setSalesSubmitting(true);
+      await api.contactSales({ company_name: companyName, message: salesMessage });
+      setSalesSuccess(true);
+      setTimeout(() => {
+        setEnterpriseModal(false);
+        setSalesSuccess(false);
+        setCompanyName("");
+        setSalesMessage("");
+      }, 2000);
+    } catch (err: any) {
+      alert(err.message || "Failed to submit request");
+    } finally {
+      setSalesSubmitting(false);
+    }
+  };
   const plans = [
     {
       name: "Free Trial",
@@ -209,18 +278,26 @@ export default function PricingPage() {
 
               {/* Pinned CTA Button */}
               <div className="mt-8 pt-4">
-                <Link href="/onboarding/connect-payment" className="w-full block">
-                  <Button
-                    variant={plan.ctaVariant}
-                    className={cn(
-                      "w-full py-2.5 text-xs font-semibold",
-                      plan.isHighlighted &&
-                        "bg-[#111827] text-white hover:bg-[#1F2937] dark:bg-white dark:text-[#111827] dark:hover:bg-gray-100"
-                    )}
-                  >
-                    {plan.ctaText}
-                  </Button>
-                </Link>
+                <Button
+                  type="button"
+                  variant={plan.ctaVariant}
+                  disabled={loadingPlan === plan.name}
+                  onClick={() => handlePlanSelect(plan.name)}
+                  className={cn(
+                    "w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2",
+                    plan.isHighlighted &&
+                      "bg-[#111827] text-white hover:bg-[#1F2937] dark:bg-white dark:text-[#111827] dark:hover:bg-gray-100"
+                  )}
+                >
+                  {loadingPlan === plan.name ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Connecting…</span>
+                    </>
+                  ) : (
+                    <span>{plan.ctaText}</span>
+                  )}
+                </Button>
               </div>
             </div>
           ))}
@@ -283,6 +360,91 @@ export default function PricingPage() {
           </div>
         </Card>
       </main>
+
+      {/* Enterprise Contact Modal */}
+      {enterpriseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-gray-800 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative animate-in zoom-in-95 duration-150">
+            <button
+              type="button"
+              onClick={() => setEnterpriseModal(false)}
+              className="absolute top-4 right-4 p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="font-display font-bold text-xl text-[#111827] dark:text-white mb-1">
+              Contact Enterprise Sales
+            </h3>
+            <p className="text-xs text-[#6B7280] dark:text-gray-400 mb-6">
+              Custom trial terms, dedicated account manager, and high-volume SLAs.
+            </p>
+
+            {salesSuccess ? (
+              <div className="py-6 text-center text-emerald-600 dark:text-emerald-400">
+                <Check className="w-8 h-8 mx-auto mb-2 stroke-[3]" />
+                <p className="font-semibold text-sm">Thank you!</p>
+                <p className="text-xs text-gray-500 mt-1">Our team will reach out to you shortly.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleContactSales} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-[#111827] dark:text-gray-200 mb-1.5">
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    placeholder="Acme Inc."
+                    className="w-full px-3.5 py-2 bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-lg text-xs sm:text-sm text-[#111827] dark:text-white placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-[#111827] dark:text-gray-200 mb-1.5">
+                    Message / Requirements
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={salesMessage}
+                    onChange={(e) => setSalesMessage(e.target.value)}
+                    placeholder="Estimated monthly payment volume, custom integrations..."
+                    className="w-full px-3.5 py-2 bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-700 rounded-lg text-xs sm:text-sm text-[#111827] dark:text-white placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end gap-2.5">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEnterpriseModal(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    disabled={salesSubmitting}
+                  >
+                    {salesSubmitting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                        Submitting…
+                      </>
+                    ) : (
+                      "Submit Request"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Shared Footer */}
       <Footer />

@@ -8,6 +8,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "./ui/Button";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
 
 interface NavbarProps {
   variant?: "landing" | "app";
@@ -16,11 +17,17 @@ interface NavbarProps {
 
 export function Navbar({
   variant = "landing",
-  userName = "Alex Morgan",
+  userName,
 }: NavbarProps) {
   const pathname = usePathname();
+  const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const displayName = user?.name || userName || "Account";
+  const displayEmail = user?.email || "";
+  const avatarUrl = user?.profile_picture_url;
+  const initial = displayName.charAt(0).toUpperCase() || "U";
 
   return (
     <header className="sticky top-0 z-40 w-full h-[76px] px-6 sm:px-10 bg-white/90 dark:bg-[#0B0F19]/90 backdrop-blur-md border-b border-[#E5E7EB] dark:border-gray-800 transition-colors">
@@ -126,7 +133,7 @@ export function Navbar({
         )}
 
         {/* Right Group: ThemeToggle + Action buttons / Avatar */}
-        {variant === "landing" ? (
+        {variant === "landing" && !isAuthenticated ? (
           <div className="hidden sm:flex items-center gap-4">
             <ThemeToggle />
             <div className="flex items-center gap-3">
@@ -151,22 +158,36 @@ export function Navbar({
                 className="flex items-center gap-2.5 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]"
                 aria-expanded={userMenuOpen}
               >
-                <div className="w-9 h-9 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-sm shadow-sm">
-                  {userName.charAt(0)}
-                </div>
+                {avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="w-9 h-9 rounded-full object-cover shadow-sm border border-gray-200 dark:border-gray-700"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-sm shadow-sm">
+                    {initial}
+                  </div>
+                )}
                 <span className="hidden sm:inline-block text-sm font-medium text-[#111827] dark:text-gray-200">
-                  {userName}
+                  {displayName}
                 </span>
                 <ChevronDown className="w-4 h-4 text-[#6B7280] dark:text-gray-400" />
               </button>
 
               {userMenuOpen && (
-                <div className="absolute right-0 top-12 w-48 bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-800 rounded-xl shadow-lg py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 top-12 w-52 bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-800 rounded-xl shadow-lg py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
                     <p className="text-xs text-gray-500">Signed in as</p>
                     <p className="text-sm font-semibold truncate text-gray-900 dark:text-gray-100">
-                      {userName}
+                      {displayName}
                     </p>
+                    {displayEmail && (
+                      <p className="text-xs truncate text-gray-500 dark:text-gray-400">
+                        {displayEmail}
+                      </p>
+                    )}
                   </div>
                   <Link
                     href="/dashboard"
@@ -176,25 +197,18 @@ export function Navbar({
                     Dashboard
                   </Link>
                   <Link
-                    href="/dashboard/customers"
+                    href="/dashboard/recoveries"
                     onClick={() => setUserMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    Customers
+                    Recoveries
                   </Link>
                   <Link
-                    href="/dashboard/dunning"
+                    href="/dashboard/settings"
                     onClick={() => setUserMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    Dunning
-                  </Link>
-                  <Link
-                    href="/onboarding/connect-payment"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    Connect Payment
+                    Settings
                   </Link>
                   <Link
                     href="/pricing"
@@ -204,13 +218,16 @@ export function Navbar({
                     Pricing
                   </Link>
                   <div className="border-t border-gray-100 dark:border-gray-800 mt-1 pt-1">
-                    <Link
-                      href="/login"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        logout();
+                      }}
+                      className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                     >
                       Sign out
-                    </Link>
+                    </button>
                   </div>
                 </div>
               )}
@@ -263,18 +280,38 @@ export function Navbar({
           >
             About
           </Link>
-          <div className="pt-2 flex flex-col gap-2.5">
-            <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="outline" className="w-full">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/login?tab=signup" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="primary" className="w-full">
-                Get Started
-              </Button>
-            </Link>
-          </div>
+          {isAuthenticated ? (
+            <div className="pt-2 flex flex-col gap-2.5">
+              <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" className="w-full">
+                  Dashboard
+                </Button>
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  logout();
+                }}
+                className="w-full py-2 px-4 rounded-lg bg-red-50 dark:bg-red-950/30 text-red-600 font-medium text-sm text-center"
+              >
+                Sign out ({displayName})
+              </button>
+            </div>
+          ) : (
+            <div className="pt-2 flex flex-col gap-2.5">
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" className="w-full">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/login?tab=signup" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="primary" className="w-full">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </header>
