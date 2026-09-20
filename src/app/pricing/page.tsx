@@ -34,7 +34,9 @@ export default function PricingPage() {
 
   const handlePlanSelect = async (planName: string) => {
     if (planName === "Free Trial") {
-      router.push(isAuthenticated ? "/onboarding/connect-payment" : "/login?tab=signup");
+      router.push(
+        isAuthenticated ? "/onboarding/connect-payment" : "/login?tab=signup",
+      );
       return;
     }
 
@@ -71,7 +73,10 @@ export default function PricingPage() {
     if (!companyName.trim()) return;
     try {
       setSalesSubmitting(true);
-      await api.contactSales({ company_name: companyName, message: salesMessage });
+      await api.contactSales({
+        company_name: companyName,
+        message: salesMessage,
+      });
       setSalesSuccess(true);
       setTimeout(() => {
         setEnterpriseModal(false);
@@ -92,14 +97,19 @@ export default function PricingPage() {
       period: "/month",
       note: "30 days · No credit card required",
       description: "Try everything, risk-free.",
-      features: [
-        "Connect Stripe / Dodo",
-        "Detect revenue leaks",
-        "Failed payment recovery",
+      included: [
+        "Connect Stripe / Dodo (1 gateway)",
+        "Revenue tracked up to $2K/month",
+        "Failed payment detection",
         "Retry automation",
-        "Leakage analytics",
         "Recovery dashboard",
-        "See exactly how much revenue LeakOps recovered",
+        "See exactly how much revenue was recovered",
+      ],
+      excluded: [
+        "CSV export",
+        "Smart retry workflows with custom schedules",
+        "Coupon, downgrade, and trial-conversion leakage detection",
+        "Priority support",
       ],
       ctaText: "Start Free Trial",
       ctaVariant: "outline" as const,
@@ -111,13 +121,20 @@ export default function PricingPage() {
       period: "/month",
       note: "30-day free trial included",
       description: "For early-stage SaaS",
-      features: [
-        "Up to $5k recovered revenue tracked/month",
+      included: [
+        "Connect Stripe / Dodo (1 gateway)",
+        "Revenue tracked up to $5K/month",
         "Failed payment detection",
         "Smart retry workflows",
         "Basic leakage detection",
-        "Revenue recovery dashboard",
+        "Recovery dashboard",
         "Email alerts",
+      ],
+      excluded: [
+        "Downgrade, coupon, and trial-conversion leakage detection",
+        "Advanced recovery rules",
+        "Advanced analytics",
+        "Priority support",
       ],
       ctaText: "Get Started",
       ctaVariant: "outline" as const,
@@ -129,14 +146,20 @@ export default function PricingPage() {
       period: "/month",
       note: "30-day free trial included",
       description: "For growing SaaS",
-      features: [
-        "Up to $25k recovered revenue tracked/month",
+      included: [
         "Everything in Starter",
+        "Revenue tracked up to $25K/month",
         "Advanced recovery rules",
         "Downgrade leakage detection",
         "Coupon leakage detection",
-        "Trial conversion leakage",
+        "Trial-conversion leakage detection",
         "Advanced analytics",
+      ],
+      excluded: [
+        "Multiple payment accounts",
+        "Dedicated account manager",
+        "SLA and uptime guarantees",
+        "Custom integrations",
       ],
       ctaText: "Get Started",
       ctaVariant: "primary" as const,
@@ -148,13 +171,18 @@ export default function PricingPage() {
       period: "/month",
       note: "30-day free trial included",
       description: "For scaling SaaS",
-      features: [
-        "Up to $100k recovered revenue tracked/month",
+      included: [
         "Everything in Growth",
+        "Revenue tracked up to $100K/month",
         "Custom recovery rules",
         "Advanced reporting",
         "Multiple payment accounts",
         "Priority support",
+      ],
+      excluded: [
+        "Dedicated account manager",
+        "SLA and uptime guarantees",
+        "Custom integrations and features",
       ],
       ctaText: "Get Started",
       ctaVariant: "outline" as const,
@@ -166,13 +194,15 @@ export default function PricingPage() {
       period: "/month",
       note: "Custom trial terms available",
       description: "For large teams and custom needs.",
-      features: [
+      included: [
         "Unlimited events",
         "Everything in Scale",
         "Dedicated account manager",
         "SLA & uptime guarantees",
         "Custom integrations & features",
+        "Custom trial terms",
       ],
+      excluded: [],
       ctaText: "Contact Sales",
       ctaVariant: "outline" as const,
       isHighlighted: false,
@@ -203,7 +233,8 @@ export default function PricingPage() {
 
           {/* 3. Subtext, centered, text-muted, two lines */}
           <p className="mt-4 text-[#6B7280] dark:text-gray-400 text-sm sm:text-base leading-relaxed">
-            Start for free and scale as you grow. No hidden fees, no setup costs.
+            Start for free and scale as you grow. No hidden fees, no setup
+            costs.
             <br className="hidden sm:inline" /> Just powerful tools to help you
             recover revenue.
           </p>
@@ -218,7 +249,7 @@ export default function PricingPage() {
                 "relative bg-white dark:bg-[#111827] rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all",
                 plan.isHighlighted
                   ? "border-2 border-[#111827] dark:border-white shadow-[0_8px_32px_rgba(17,24,39,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6)] xl:-translate-y-2 z-10 pt-11 sm:pt-12" // extra top padding to prevent collision
-                  : "border border-[#E5E7EB] dark:border-gray-800 shadow-[0_4px_24px_rgba(17,24,39,0.06)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
+                  : "border border-[#E5E7EB] dark:border-gray-800 shadow-[0_4px_24px_rgba(17,24,39,0.06)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)]",
               )}
             >
               {/* Overlapping Top-Corner "Most Popular" Badge (Single-line non-wrapping pill straddling border) */}
@@ -254,26 +285,50 @@ export default function PricingPage() {
                   </p>
                 </div>
 
-                {/* Checklist */}
-                <ul className="mt-6 space-y-3">
-                  {plan.features.map((feature, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-start gap-2.5 text-xs text-[#111827] dark:text-gray-300 leading-snug"
-                    >
-                      {/* Checkmark icon: black on Growth card, indigo on others per rule */}
-                      <Check
-                        className={cn(
-                          "w-4 h-4 shrink-0 mt-0.5",
-                          plan.isHighlighted
-                            ? "text-[#111827] dark:text-white stroke-[2.5]"
-                            : "text-[#6366F1] dark:text-[#818CF8]"
-                        )}
-                      />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                {/* Included features */}
+                <div className="mt-6">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#111827] dark:text-white">
+                    Milega
+                  </p>
+                  <ul className="mt-3 space-y-3">
+                    {plan.included.map((feature, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-start gap-2.5 text-xs text-[#111827] dark:text-gray-300 leading-snug"
+                      >
+                        <Check
+                          className={cn(
+                            "w-4 h-4 shrink-0 mt-0.5",
+                            plan.isHighlighted
+                              ? "text-[#111827] dark:text-white stroke-[2.5]"
+                              : "text-[#6366F1] dark:text-[#818CF8]",
+                          )}
+                        />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Excluded features */}
+                {plan.excluded.length > 0 && (
+                  <div className="mt-7 pt-5 border-t border-[#E5E7EB] dark:border-gray-800">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280] dark:text-gray-400">
+                      Nahi milega
+                    </p>
+                    <ul className="mt-3 space-y-3">
+                      {plan.excluded.map((feature, idx) => (
+                        <li
+                          key={idx}
+                          className="flex items-start gap-2.5 text-xs text-[#6B7280] dark:text-gray-500 leading-snug"
+                        >
+                          <X className="w-4 h-4 shrink-0 mt-0.5 text-[#9CA3AF] dark:text-gray-600" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               {/* Pinned CTA Button */}
@@ -286,7 +341,7 @@ export default function PricingPage() {
                   className={cn(
                     "w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2",
                     plan.isHighlighted &&
-                      "bg-[#111827] text-white hover:bg-[#1F2937] dark:bg-white dark:text-[#111827] dark:hover:bg-gray-100"
+                      "bg-[#111827] text-white hover:bg-[#1F2937] dark:bg-white dark:text-[#111827] dark:hover:bg-gray-100",
                   )}
                 >
                   {loadingPlan === plan.name ? (
@@ -377,14 +432,17 @@ export default function PricingPage() {
               Contact Enterprise Sales
             </h3>
             <p className="text-xs text-[#6B7280] dark:text-gray-400 mb-6">
-              Custom trial terms, dedicated account manager, and high-volume SLAs.
+              Custom trial terms, dedicated account manager, and high-volume
+              SLAs.
             </p>
 
             {salesSuccess ? (
               <div className="py-6 text-center text-emerald-600 dark:text-emerald-400">
                 <Check className="w-8 h-8 mx-auto mb-2 stroke-[3]" />
                 <p className="font-semibold text-sm">Thank you!</p>
-                <p className="text-xs text-gray-500 mt-1">Our team will reach out to you shortly.</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Our team will reach out to you shortly.
+                </p>
               </div>
             ) : (
               <form onSubmit={handleContactSales} className="space-y-4">
