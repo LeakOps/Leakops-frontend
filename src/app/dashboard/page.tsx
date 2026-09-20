@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { StatCard } from "@/components/ui/StatCard";
 import { Card } from "@/components/ui/Card";
 import { IconChip } from "@/components/ui/IconChip";
+import { useAuth } from "@/lib/auth";
+import { api, DashboardSummary, DashboardPayment } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import {
   CreditCard,
   Shield,
@@ -21,14 +24,48 @@ import {
   Menu,
   X,
   Calendar,
+  Loader2,
 } from "lucide-react";
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dateRangeOpen, setDateRangeOpen] = useState(false);
   const [selectedRange, setSelectedRange] = useState("Last 30 days");
 
+  const [summary, setSummary] = useState<DashboardSummary>({
+    revenue_at_risk_cents: 0,
+    recovered_cents: 0,
+    recovery_rate: 0,
+    total_failed_payments: 0,
+  });
+  const [payments, setPayments] = useState<DashboardPayment[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const ranges = ["Last 7 days", "Last 30 days", "Last 90 days", "Year to date"];
+
+  const loadDashboardData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [summaryRes, paymentsRes] = await Promise.allSettled([
+        api.getDashboardSummary(),
+        api.getDashboardPayments(),
+      ]);
+
+      if (summaryRes.status === "fulfilled") {
+        setSummary(summaryRes.value);
+      }
+      if (paymentsRes.status === "fulfilled") {
+        setPayments(paymentsRes.value.payments || []);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   return (
     <div className="min-h-screen bg-[#F5F6FB] dark:bg-[#0B0F19] text-[#111827] dark:text-[#F9FAFB] flex transition-colors">
@@ -61,120 +98,91 @@ export default function DashboardPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         {/* Main Content — Top Bar */}
-        <header className="h-[76px] px-6 sm:px-8 bg-white dark:bg-[#0B0F19] border-b border-[#E5E7EB] dark:border-gray-800 flex items-center justify-between sticky top-0 z-30 transition-colors">
-          <div className="flex items-center gap-3">
-            {/* Mobile menu toggle */}
+        <DashboardHeader
+          title={`Good morning, ${user?.name ? user.name.split(" ")[0] : "there"} 👋`}
+          subtitle="Here's what's happening with your revenue recovery."
+          onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
+        >
+          {/* Date-range dropdown pill */}
+          <div className="relative">
             <button
               type="button"
-              onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-              aria-label="Open menu"
+              onClick={() => setDateRangeOpen(!dateRangeOpen)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E5E7EB] dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-medium text-[#111827] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-2xs transition-colors"
             >
-              <Menu className="w-5 h-5" />
+              <Calendar className="w-3.5 h-3.5 text-[#6366F1]" />
+              <span>{selectedRange}</span>
+              <ChevronDown className="w-3 h-3 text-[#6B7280]" />
             </button>
 
-            {/* Greeting */}
-            <div>
-              <h1 className="font-display font-bold text-lg sm:text-xl text-[#111827] dark:text-white flex items-center gap-1.5">
-                Good morning, Alex <span className="inline-block animate-wave">👋</span>
-              </h1>
-              <p className="text-xs text-[#6B7280] dark:text-gray-400 hidden sm:block">
-                Here&apos;s what&apos;s happening with your revenue recovery.
-              </p>
-            </div>
-          </div>
-
-          {/* Right actions: date-range dropdown, theme toggle, avatar */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Date-range dropdown pill */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setDateRangeOpen(!dateRangeOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E5E7EB] dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-medium text-[#111827] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-2xs transition-colors"
-              >
-                <Calendar className="w-3.5 h-3.5 text-[#6366F1]" />
-                <span>{selectedRange}</span>
-                <ChevronDown className="w-3 h-3 text-[#6B7280]" />
-              </button>
-
-              {dateRangeOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-gray-800 rounded-xl shadow-lg py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150">
-                  {ranges.map((range) => (
-                    <button
-                      key={range}
-                      type="button"
-                      onClick={() => {
-                        setSelectedRange(range);
-                        setDateRangeOpen(false);
-                      }}
-                      className="w-full text-left px-3.5 py-1.5 text-xs text-[#111827] dark:text-gray-300 hover:bg-[#EEF2FF] dark:hover:bg-[#6366F1]/20 hover:text-[#6366F1] dark:hover:text-white transition-colors"
-                    >
-                      {range}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Theme Toggle */}
-            <ThemeToggle />
-
-            {/* User Avatar Dropdown */}
-            <div className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm">
-                A
+            {dateRangeOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-gray-800 rounded-xl shadow-lg py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150">
+                {ranges.map((range) => (
+                  <button
+                    key={range}
+                    type="button"
+                    onClick={() => {
+                      setSelectedRange(range);
+                      setDateRangeOpen(false);
+                    }}
+                    className="w-full text-left px-3.5 py-1.5 text-xs text-[#111827] dark:text-gray-300 hover:bg-[#EEF2FF] dark:hover:bg-[#6366F1]/20 hover:text-[#6366F1] dark:hover:text-white transition-colors"
+                  >
+                    {range}
+                  </button>
+                ))}
               </div>
-              <span className="hidden xl:inline-block text-xs font-semibold text-[#111827] dark:text-gray-200">
-                Alex Morgan
-              </span>
-              <ChevronDown className="w-3 h-3 text-[#6B7280] dark:text-gray-400 hidden xl:block" />
-            </div>
+            )}
           </div>
-        </header>
+        </DashboardHeader>
 
         {/* Dashboard Body Content */}
         <main className="p-6 sm:p-8 space-y-6 max-w-7xl w-full">
-          {/* Stat cards row — 4 equal-width white cards (ALL VALUES ZERO) */}
+          {/* Stat cards row — 4 equal-width white cards with live values */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {/* 1. Recovered Revenue */}
             <StatCard
               icon={<CreditCard className="w-4 h-4" />}
               label="Recovered Revenue"
-              value="$0"
-              trend="0%"
-              trendDirection="neutral"
+              value={`$${(summary.recovered_cents / 100).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`}
+              trend={summary.recovered_cents > 0 ? "Active" : "0%"}
+              trendDirection={summary.recovered_cents > 0 ? "up" : "neutral"}
               caption="vs. previous 30 days"
             />
 
-            {/* 2. Failed Payments */}
+            {/* 2. Revenue at Risk */}
             <StatCard
               icon={<Shield className="w-4 h-4" />}
-              label="Failed Payments"
-              value="$0"
-              trend="0%"
-              trendDirection="neutral"
+              label="Revenue at Risk"
+              value={`$${(summary.revenue_at_risk_cents / 100).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`}
+              trend={summary.revenue_at_risk_cents > 0 ? "Pending" : "0%"}
+              trendDirection={summary.revenue_at_risk_cents > 0 ? "down" : "neutral"}
               caption="vs. previous 30 days"
             />
 
-            {/* 3. Recovered Customers */}
+            {/* 3. Failed Payments */}
             <StatCard
               icon={<Gift className="w-4 h-4" />}
-              label="Recovered Customers"
-              value="0"
-              trend="0%"
-              trendDirection="neutral"
-              caption="vs. previous 30 days"
+              label="Failed Invoices"
+              value={summary.total_failed_payments.toString()}
+              trend={summary.total_failed_payments > 0 ? `${summary.total_failed_payments}` : "0"}
+              trendDirection={summary.total_failed_payments > 0 ? "down" : "neutral"}
+              caption="total recorded"
             />
 
             {/* 4. Success Rate */}
             <StatCard
               icon={<Clock className="w-4 h-4" />}
-              label="Success Rate"
-              value="0%"
-              trend="0%"
-              trendDirection="neutral"
-              caption="vs. previous 30 days"
+              label="Recovery Rate"
+              value={`${summary.recovery_rate.toFixed(1)}%`}
+              trend={`${summary.recovery_rate.toFixed(0)}%`}
+              trendDirection={summary.recovery_rate > 0 ? "up" : "neutral"}
+              caption="successful retries"
             />
           </div>
 
@@ -486,22 +494,66 @@ export default function DashboardPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {/* Empty state instead of rows */}
-                      <tr>
-                        <td colSpan={4} className="py-12 text-center">
-                          <div className="flex flex-col items-center justify-center">
-                            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 mb-3">
-                              <Inbox className="w-5 h-5" />
+                      {loading ? (
+                        <tr>
+                          <td colSpan={4} className="py-8 text-center text-gray-500">
+                            <Loader2 className="w-5 h-5 animate-spin mx-auto text-[#6366F1]" />
+                          </td>
+                        </tr>
+                      ) : payments.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-12 text-center">
+                            <div className="flex flex-col items-center justify-center">
+                              <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 mb-3">
+                                <Inbox className="w-5 h-5" />
+                              </div>
+                              <p className="font-semibold text-sm text-[#111827] dark:text-white">
+                                No recoveries yet
+                              </p>
+                              <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1">
+                                Once payments are recovered, they&apos;ll show up here.
+                              </p>
                             </div>
-                            <p className="font-semibold text-sm text-[#111827] dark:text-white">
-                              No recoveries yet
-                            </p>
-                            <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1">
-                              Once payments are recovered, they&apos;ll show up here.
-                            </p>
-                          </div>
-                        </td>
-                      </tr>
+                          </td>
+                        </tr>
+                      ) : (
+                        payments.slice(0, 5).map((p) => (
+                          <tr
+                            key={p.id}
+                            className="border-b border-gray-100 dark:border-gray-800/60 last:border-0 hover:bg-gray-50/50 dark:hover:bg-gray-800/30"
+                          >
+                            <td className="py-3 pr-4">
+                              <div className="font-medium text-[#111827] dark:text-white">
+                                {p.customer_name || "Unknown Customer"}
+                              </div>
+                              <div className="text-[11px] text-[#6B7280] dark:text-gray-400 truncate max-w-[140px]">
+                                {p.customer_email}
+                              </div>
+                            </td>
+                            <td className="py-3 font-semibold text-[#111827] dark:text-white">
+                              {(p.amount_cents / 100).toLocaleString("en-US", {
+                                style: "currency",
+                                currency: p.currency || "USD",
+                              })}
+                            </td>
+                            <td className="py-3">
+                              <span
+                                className={cn(
+                                  "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize",
+                                  p.status === "recovered"
+                                    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                    : "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                                )}
+                              >
+                                {p.status}
+                              </span>
+                            </td>
+                            <td className="py-3 text-right text-gray-500 dark:text-gray-400 text-[11px]">
+                              {new Date(p.created_at).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -518,25 +570,65 @@ export default function DashboardPage() {
                 Recent Activity
               </h3>
               <Link
-                href="/dashboard#activity"
+                href="/dashboard/recoveries"
                 className="text-xs font-semibold text-[#6366F1] dark:text-[#818CF8] hover:underline"
               >
                 View all
               </Link>
             </div>
 
-            {/* Empty state */}
-            <div className="py-10 flex flex-col items-center justify-center text-center">
-              <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 mb-3">
-                <Activity className="w-5 h-5" />
+            {/* Content: loading, empty, or real rows */}
+            {loading ? (
+              <div className="py-8 text-center text-gray-500">
+                <Loader2 className="w-5 h-5 animate-spin mx-auto text-[#6366F1]" />
               </div>
-              <p className="font-semibold text-sm text-[#111827] dark:text-white">
-                No activity yet.
-              </p>
-              <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1">
-                Once you connect a payment provider, events will show up here.
-              </p>
-            </div>
+            ) : payments.length === 0 ? (
+              <div className="py-10 flex flex-col items-center justify-center text-center">
+                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 mb-3">
+                  <Activity className="w-5 h-5" />
+                </div>
+                <p className="font-semibold text-sm text-[#111827] dark:text-white">
+                  No activity yet.
+                </p>
+                <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1">
+                  Once you connect a payment provider, events will show up here.
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                {payments.slice(0, 4).map((p) => (
+                  <div key={p.id} className="py-3 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          "w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0",
+                          p.status === "recovered"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
+                            : "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400"
+                        )}
+                      >
+                        {p.status === "recovered" ? "✓" : "!"}
+                      </div>
+                      <div>
+                        <p className="font-medium text-[#111827] dark:text-white">
+                          Payment {p.status === "recovered" ? "recovered" : "failed"} for {p.customer_name || p.customer_email}
+                        </p>
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                          {(p.amount_cents / 100).toLocaleString("en-US", {
+                            style: "currency",
+                            currency: p.currency || "USD",
+                          })}{" "}
+                          • Retries: {p.retry_count}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[11px] text-gray-400 shrink-0">
+                      {new Date(p.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
         </main>
       </div>
