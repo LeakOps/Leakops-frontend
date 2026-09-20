@@ -66,7 +66,7 @@ export default function AboutPage() {
             Our Story
           </div>
           <h1 className="font-display font-bold text-3xl sm:text-4xl lg:text-5xl leading-tight text-[#111827] dark:text-white">
-            We built the recovery team every SaaS wishes it had.
+            We are helping SaaS businesses recover lost payments.
           </h1>
           <p className="mt-5 text-[#6B7280] dark:text-gray-400 text-base sm:text-[17px] leading-relaxed max-w-[600px] mx-auto">
             Every SaaS platform&apos;s native dunning does the bare minimum —
