@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -60,38 +60,11 @@ export default function DunningPage() {
       )}
 
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <header className="h-[76px] px-6 sm:px-8 bg-white dark:bg-[#0B0F19] border-b border-[#E5E7EB] dark:border-gray-800 flex items-center justify-between sticky top-0 z-30 transition-colors">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="font-display font-bold text-lg sm:text-xl text-[#111827] dark:text-white">
-                Dunning Sequences
-              </h1>
-              <p className="text-xs text-[#6B7280] dark:text-gray-400 hidden sm:block">
-                Intelligent retry timing and automated customer communications.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <div className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm">
-                A
-              </div>
-              <span className="hidden xl:inline-block text-xs font-semibold text-[#111827] dark:text-gray-200">
-                Alex Morgan
-              </span>
-              <ChevronDown className="w-3 h-3 text-[#6B7280] dark:text-gray-400 hidden xl:block" />
-            </div>
-          </div>
-        </header>
+        <DashboardHeader
+          title="Dunning Sequences"
+          subtitle="Intelligent retry timing and automated customer communications."
+          onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
+        />
 
         <main className="p-6 sm:p-8 space-y-6 max-w-7xl w-full">
           {/* Visual Retry Timeline Card */}
