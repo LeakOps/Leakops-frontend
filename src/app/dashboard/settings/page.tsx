@@ -1,36 +1,43 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { useAuth } from "@/lib/auth";
+import { api, SubscriptionInfo } from "@/lib/api";
 import {
   User,
   CreditCard,
   Users,
   Bell,
   AlertTriangle,
-  ChevronDown,
-  Menu,
-  X,
   Save,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
+  const { user, updateProfilePicture } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "profile" | "billing" | "team" | "notifications" | "danger"
   >("profile");
 
   // Profile form state
-  const [name, setName] = useState("Alex Morgan");
-  const [email, setEmail] = useState("alex@saasstartup.com");
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  // Billing subscription state
+  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
+  const [subLoading, setSubLoading] = useState(false);
 
   // Notification toggles
   const [emailAlerts, setEmailAlerts] = useState(true);
@@ -40,8 +47,55 @@ export default function SettingsPage() {
   // Team state
   const [inviteEmail, setInviteEmail] = useState("");
   const [teamMembers, setTeamMembers] = useState([
-    { name: "Alex Morgan", email: "alex@saasstartup.com", role: "Owner" },
+    {
+      name: user?.name || "Account Owner",
+      email: user?.email || "",
+      role: "Owner",
+    },
   ]);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      setTeamMembers((prev) => [
+        {
+          name: user.name,
+          email: user.email,
+          role: "Owner",
+        },
+        ...prev.slice(1),
+      ]);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (activeTab === "billing") {
+      setSubLoading(true);
+      api
+        .getSubscription()
+        .then(setSubscription)
+        .catch(console.error)
+        .finally(() => setSubLoading(false));
+    }
+  }, [activeTab]);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingAvatar(true);
+      await updateProfilePicture(file);
+    } catch (err: any) {
+      alert(err.message || "Failed to upload profile picture");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,60 +127,12 @@ export default function SettingsPage() {
         <Sidebar activeItem="Settings" />
       </div>
 
-      {mobileSidebarOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-2xs"
-            onClick={() => setMobileSidebarOpen(false)}
-          />
-          <div className="relative z-10 w-[270px] bg-white dark:bg-[#0B0F19] h-full shadow-2xl flex flex-col">
-            <div className="p-4 flex justify-end">
-              <button
-                onClick={() => setMobileSidebarOpen(false)}
-                className="p-1 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <Sidebar activeItem="Settings" className="w-full border-r-0" />
-          </div>
-        </div>
-      )}
-
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <header className="h-[76px] px-6 sm:px-8 bg-white dark:bg-[#0B0F19] border-b border-[#E5E7EB] dark:border-gray-800 flex items-center justify-between sticky top-0 z-30 transition-colors">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="font-display font-bold text-lg sm:text-xl text-[#111827] dark:text-white">
-                Account Settings
-              </h1>
-              <p className="text-xs text-[#6B7280] dark:text-gray-400 hidden sm:block">
-                Manage your personal profile, team access, alerts, and
-                subscription.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <div className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm">
-                A
-              </div>
-              <span className="hidden xl:inline-block text-xs font-semibold text-[#111827] dark:text-gray-200">
-                Alex Morgan
-              </span>
-              <ChevronDown className="w-3 h-3 text-[#6B7280] dark:text-gray-400 hidden xl:block" />
-            </div>
-          </div>
-        </header>
+        <DashboardHeader
+          title="Account Settings"
+          subtitle="Manage your profile, active subscription, and team members."
+          onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
+        />
 
         <main className="p-6 sm:p-8 max-w-5xl w-full space-y-6">
           {/* Settings Navigation Tabs */}
@@ -142,7 +148,7 @@ export default function SettingsPage() {
                     "flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer",
                     isActive
                       ? "bg-white dark:bg-[#111827] text-[#111827] dark:text-white shadow-2xs font-semibold border border-[#E5E7EB] dark:border-gray-700"
-                      : "text-[#6B7280] dark:text-gray-400 hover:text-[#111827] dark:hover:text-white",
+                      : "text-[#6B7280] dark:text-gray-400 hover:text-[#111827] dark:hover:text-white"
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -160,16 +166,42 @@ export default function SettingsPage() {
               </h3>
 
               <form onSubmit={handleSaveProfile} className="space-y-6 max-w-md">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                />
+
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-[#6366F1] text-white font-display font-bold text-2xl flex items-center justify-center shadow-md">
-                    {name.charAt(0)}
-                  </div>
+                  {user?.profile_picture_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={user.profile_picture_url}
+                      alt={name}
+                      className="w-16 h-16 rounded-full object-cover shadow-md border-2 border-[#6366F1]"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-[#6366F1] text-white font-display font-bold text-2xl flex items-center justify-center shadow-md">
+                      {(name || "U").charAt(0).toUpperCase()}
+                    </div>
+                  )}
+
                   <div>
-                    <Button variant="outline" size="sm" type="button">
-                      Change Avatar
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      type="button"
+                      disabled={uploadingAvatar}
+                      onClick={handleAvatarClick}
+                      className="flex items-center gap-2"
+                    >
+                      {uploadingAvatar && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      <span>{uploadingAvatar ? "Uploading…" : "Change Avatar"}</span>
                     </Button>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-500 mt-1">
-                      JPG, GIF or PNG. 1MB max.
+                      JPG, PNG or WEBP. 2MB max.
                     </p>
                   </div>
                 </div>
@@ -194,10 +226,13 @@ export default function SettingsPage() {
                   <input
                     type="email"
                     required
+                    readOnly
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-white dark:bg-gray-900 border border-[#E5E7EB] dark:border-gray-800 rounded-lg text-xs sm:text-sm text-[#111827] dark:text-white"
+                    className="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-[#E5E7EB] dark:border-gray-800 rounded-lg text-xs sm:text-sm text-[#6B7280] dark:text-gray-400 cursor-not-allowed"
                   />
+                  <p className="text-[11px] text-gray-500 mt-1">
+                    Email is linked to your authentication provider.
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">
@@ -225,17 +260,22 @@ export default function SettingsPage() {
                     <span className="text-xs font-semibold uppercase tracking-wider text-[#6366F1]">
                       Current Plan
                     </span>
-                    <h3 className="font-display font-bold text-xl text-[#111827] dark:text-white mt-0.5">
-                      Growth Plan ($49/month)
+                    <h3 className="font-display font-bold text-xl text-[#111827] dark:text-white mt-0.5 capitalize">
+                      {subLoading ? (
+                        "Loading plan…"
+                      ) : (
+                        `${subscription?.plan || "Free"} Plan (${subscription?.status || "Active"})`
+                      )}
                     </h3>
                     <p className="text-xs text-[#6B7280] dark:text-gray-400 mt-1">
-                      Tracks up to $25k recovered revenue per month with
-                      advanced recovery rules.
+                      {subscription?.current_period_end
+                        ? `Renews on: ${new Date(subscription.current_period_end).toLocaleDateString()}`
+                        : "Includes automated webhook listeners and intelligent payment retries."}
                     </p>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <Link href="/pricing">
-                      <Button variant="outline" size="sm">
+                      <Button variant="primary" size="sm" withArrow>
                         Upgrade / Change Plan
                       </Button>
                     </Link>
@@ -250,7 +290,7 @@ export default function SettingsPage() {
                   </h4>
                 </div>
                 <div className="p-8 text-center text-xs text-[#6B7280] dark:text-gray-400">
-                  No invoices generated yet during your 30-day free trial.
+                  No invoices generated yet for your account.
                 </div>
               </Card>
             </div>
@@ -263,14 +303,10 @@ export default function SettingsPage() {
                 Team Members
               </h3>
               <p className="text-xs text-[#6B7280] dark:text-gray-400 mb-6">
-                Invite team members to monitor payment recovery and configure
-                webhooks.
+                Invite team members to monitor payment recovery and configure webhooks.
               </p>
 
-              <form
-                onSubmit={handleInvite}
-                className="flex gap-3 max-w-md mb-8"
-              >
+              <form onSubmit={handleInvite} className="flex gap-3 max-w-md mb-8">
                 <input
                   type="email"
                   required
@@ -286,10 +322,7 @@ export default function SettingsPage() {
 
               <div className="divide-y divide-[#E5E7EB] dark:divide-gray-800 border-t border-[#E5E7EB] dark:border-gray-800 pt-2">
                 {teamMembers.map((member, i) => (
-                  <div
-                    key={i}
-                    className="py-3.5 flex items-center justify-between"
-                  >
+                  <div key={i} className="py-3.5 flex items-center justify-between">
                     <div>
                       <p className="font-semibold text-sm text-[#111827] dark:text-white">
                         {member.name}
@@ -298,9 +331,7 @@ export default function SettingsPage() {
                         {member.email}
                       </p>
                     </div>
-                    <Badge
-                      variant={member.role === "Owner" ? "indigo" : "neutral"}
-                    >
+                    <Badge variant={member.role === "Owner" ? "indigo" : "neutral"}>
                       {member.role}
                     </Badge>
                   </div>
@@ -316,8 +347,7 @@ export default function SettingsPage() {
                 Alert Preferences
               </h3>
               <p className="text-xs text-[#6B7280] dark:text-gray-400 mb-6">
-                Choose how and when you want to be alerted about revenue
-                recovery events.
+                Choose how and when you want to be alerted about revenue recovery events.
               </p>
 
               <div className="space-y-4 max-w-xl">
@@ -327,8 +357,7 @@ export default function SettingsPage() {
                       Instant Failed Payment Alerts
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Receive an immediate email notification when a high-value
-                      charge fails.
+                      Receive an immediate email notification when a high-value charge fails.
                     </p>
                   </div>
                   <input
@@ -345,8 +374,7 @@ export default function SettingsPage() {
                       SMS Escalation Notifications
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Send urgent alerts to founder phone when customer reaches
-                      final dunning step.
+                      Send urgent alerts to founder phone when customer reaches final dunning step.
                     </p>
                   </div>
                   <input
@@ -363,8 +391,7 @@ export default function SettingsPage() {
                       Weekly Revenue Digest
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Summary of recovered revenue, saved customers, and coupon
-                      flags.
+                      Summary of recovered revenue, saved customers, and coupon flags.
                     </p>
                   </div>
                   <input
@@ -380,16 +407,12 @@ export default function SettingsPage() {
 
           {/* Tab 5: Danger Zone */}
           {activeTab === "danger" && (
-            <Card
-              padding="lg"
-              className="border-rose-200 dark:border-rose-950/60"
-            >
+            <Card padding="lg" className="border-rose-200 dark:border-rose-950/60">
               <h3 className="font-display font-bold text-base text-rose-600 mb-2">
                 Danger Zone
               </h3>
               <p className="text-xs text-[#6B7280] dark:text-gray-400 mb-6">
-                Irreversible actions related to your account and payment
-                gateways.
+                Irreversible actions related to your account and payment gateways.
               </p>
 
               <div className="space-y-4">
@@ -399,41 +422,18 @@ export default function SettingsPage() {
                       Disconnect All Gateways
                     </p>
                     <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Stops listening to payment events and deactivates
-                      automated dunning.
+                      Stops listening to payment events and deactivates automated dunning.
                     </p>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => confirm("Disconnect all payment webhooks?")}
-                    className="text-rose-600 border-rose-200 hover:bg-rose-50 dark:border-rose-900"
-                  >
-                    Disconnect Gateways
-                  </Button>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-rose-100 dark:border-rose-950/40 bg-rose-50/30 dark:bg-rose-950/10">
-                  <div>
-                    <p className="text-xs font-semibold text-[#111827] dark:text-white">
-                      Delete Account
-                    </p>
-                    <p className="text-[11px] text-[#6B7280] dark:text-gray-400">
-                      Permanently delete your LeakOps account and all associated
-                      recovery logs.
-                    </p>
-                  </div>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() =>
-                      confirm(
-                        "Are you sure you want to permanently delete your account?",
-                      )
-                    }
-                  >
-                    Delete Account
-                  </Button>
+                  <Link href="/dashboard/webhook-setup">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-rose-600 border-rose-200 hover:bg-rose-50 dark:border-rose-900"
+                    >
+                      Manage Gateways
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </Card>
