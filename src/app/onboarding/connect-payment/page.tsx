@@ -23,11 +23,15 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { api } from "@/lib/api";
+import { AlertCircle } from "lucide-react";
 
 type Step = 1 | 2 | 3;
 type Provider = "stripe" | "dodo";
 
 export default function ConnectPaymentPage() {
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
     null,
@@ -35,6 +39,7 @@ export default function ConnectPaymentPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
 
   // Automated progress screen state for Step 2
   const [progressItems, setProgressItems] = useState([
@@ -51,15 +56,19 @@ export default function ConnectPaymentPage() {
     setSelectedProvider(provider);
     setIsModalOpen(true);
     setApiKey("");
+    setConnectError(null);
   };
 
-  const handleConnectSubmit = (e: React.FormEvent) => {
+  const handleConnectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!apiKey.trim()) return;
+    if (!apiKey.trim() || !selectedProvider) return;
 
     setIsModalOpen(false);
+    setConnectError(null);
+    setCurrentStep(2);
+
     setProgressItems([
-      { id: 1, label: "Creating your account…", done: false },
+      { id: 1, label: "Creating your account…", done: true },
       {
         id: 2,
         label: `Registering secure webhook with ${
@@ -69,42 +78,34 @@ export default function ConnectPaymentPage() {
       },
       { id: 3, label: "Encrypting & storing credentials…", done: false },
     ]);
-    setCurrentStep(2);
-  };
 
-  // Step 2 Automated Sequence
-  useEffect(() => {
-    if (currentStep === 2) {
-      const t1 = setTimeout(() => {
-        setProgressItems((prev) =>
-          prev.map((item) => (item.id === 1 ? { ...item, done: true } : item)),
-        );
-      }, 700);
+    try {
+      await api.connectGateway({
+        gateway_type: selectedProvider,
+        api_key: apiKey.trim(),
+      });
 
-      const t2 = setTimeout(() => {
-        setProgressItems((prev) =>
-          prev.map((item) => (item.id === 2 ? { ...item, done: true } : item)),
-        );
-      }, 1500);
+      // Update progress visually on success
+      setProgressItems([
+        { id: 1, label: "Creating your account…", done: true },
+        {
+          id: 2,
+          label: `Registering secure webhook with ${
+            selectedProvider === "dodo" ? "Dodo" : "Stripe"
+          }…`,
+          done: true,
+        },
+        { id: 3, label: "Encrypting & storing credentials…", done: true },
+      ]);
 
-      const t3 = setTimeout(() => {
-        setProgressItems((prev) =>
-          prev.map((item) => (item.id === 3 ? { ...item, done: true } : item)),
-        );
-      }, 2300);
-
-      const t4 = setTimeout(() => {
+      setTimeout(() => {
         setCurrentStep(3);
-      }, 3100);
-
-      return () => {
-        clearTimeout(t1);
-        clearTimeout(t2);
-        clearTimeout(t3);
-        clearTimeout(t4);
-      };
+      }, 600);
+    } catch (err: any) {
+      setConnectError(err.message || "Failed to connect payment gateway");
+      setCurrentStep(1);
     }
-  }, [currentStep]);
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0B0F19] text-[#111827] dark:text-[#F9FAFB] flex flex-col transition-colors">
@@ -200,23 +201,48 @@ export default function ConnectPaymentPage() {
           </div>
         </div>
 
-        {/* Top-right: theme toggle + avatar circle with initial + name + small chevron */}
+        {/* Top-right: theme toggle + avatar circle with initial + name */}
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <div className="flex items-center gap-2.5 p-1 rounded-full cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-            <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs">
-              A
-            </div>
+            {user?.profile_picture_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.profile_picture_url}
+                alt={user?.name || "Account"}
+                className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs">
+                {(user?.name || "A").charAt(0).toUpperCase()}
+              </div>
+            )}
             <span className="hidden sm:inline-block text-sm font-medium text-[#111827] dark:text-gray-200">
-              Alex
+              {user?.name || "Account"}
             </span>
-            <ChevronDown className="w-3.5 h-3.5 text-[#6B7280] dark:text-gray-400" />
           </div>
         </div>
       </header>
 
       {/* Main Container */}
       <div className="max-w-6xl w-full mx-auto px-6 sm:px-10 py-6 flex-1 flex flex-col">
+        {/* Error Alert */}
+        {connectError && (
+          <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 flex items-center justify-between gap-3 text-red-700 dark:text-red-400">
+            <div className="flex items-center gap-3 text-sm">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <span>{connectError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setConnectError(null)}
+              className="text-xs font-semibold underline hover:no-underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {/* Below header: small ← Back to Dashboard text link */}
         <div className="mb-6">
           <Link
