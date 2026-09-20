@@ -288,7 +288,7 @@ export default function PricingPage() {
                 {/* Included features */}
                 <div className="mt-6">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-[#111827] dark:text-white">
-                    Milega
+                    Included
                   </p>
                   <ul className="mt-3 space-y-3">
                     {plan.included.map((feature, idx) => (
@@ -314,7 +314,7 @@ export default function PricingPage() {
                 {plan.excluded.length > 0 && (
                   <div className="mt-7 pt-5 border-t border-[#E5E7EB] dark:border-gray-800">
                     <p className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280] dark:text-gray-400">
-                      Nahi milega
+                      Excluded
                     </p>
                     <ul className="mt-3 space-y-3">
                       {plan.excluded.map((feature, idx) => (
