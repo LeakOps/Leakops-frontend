@@ -6,7 +6,11 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CheckCircle2, Send, Loader2 } from "lucide-react";
-import { GithubIcon, LinkedinIcon, TwitterIcon } from "@/components/SocialIcons";
+import {
+  GithubIcon,
+  LinkedinIcon,
+  TwitterIcon,
+} from "@/components/SocialIcons";
 
 export default function AboutPage() {
   const [name, setName] = useState("");
@@ -14,12 +18,17 @@ export default function AboutPage() {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !message) return;
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      setError("Please complete all fields.");
+      return;
+    }
 
     setIsSubmitting(true);
+    setError("");
     try {
       const res = await fetch("/api/feedback", {
         method: "POST",
@@ -31,9 +40,14 @@ export default function AboutPage() {
         setName("");
         setEmail("");
         setMessage("");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(
+          data.error || "We could not send your feedback. Please try again.",
+        );
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
+      setError("We could not send your feedback. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -55,10 +69,10 @@ export default function AboutPage() {
             We built the recovery team every SaaS wishes it had.
           </h1>
           <p className="mt-5 text-[#6B7280] dark:text-gray-400 text-base sm:text-[17px] leading-relaxed max-w-[600px] mx-auto">
-            Every SaaS platform&apos;s native dunning does the bare minimum — one retry,
-            one generic email. We started LeakOps because founders deserve to see
-            exactly where their revenue is leaking, and to fix it automatically instead
-            of chasing it manually.
+            Every SaaS platform&apos;s native dunning does the bare minimum —
+            one retry, one generic email. We started LeakOps because founders
+            deserve to see exactly where their revenue is leaking, and to fix it
+            automatically instead of chasing it manually.
           </p>
         </div>
 
@@ -68,9 +82,9 @@ export default function AboutPage() {
             Our mission
           </h2>
           <p className="text-[#6B7280] dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-            Give every SaaS founder the visibility and automation that used to only
-            exist inside large finance teams — so recovering revenue takes minutes,
-            not manual spreadsheet work.
+            Give every SaaS founder the visibility and automation that used to
+            only exist inside large finance teams — so recovering revenue takes
+            minutes, not manual spreadsheet work.
           </p>
         </div>
 
@@ -117,7 +131,8 @@ export default function AboutPage() {
               Have feedback or a feature request?
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-[#6B7280] dark:text-gray-400">
-              Tell us what&apos;s working, what&apos;s missing, or what&apos;s broken — we read every message.
+              Tell us what&apos;s working, what&apos;s missing, or what&apos;s
+              broken — we read every message.
             </p>
           </div>
 
@@ -205,6 +220,14 @@ export default function AboutPage() {
                     )}
                   </Button>
                 </div>
+                {error && (
+                  <p
+                    role="alert"
+                    className="text-sm text-red-600 dark:text-red-400"
+                  >
+                    {error}
+                  </p>
+                )}
               </form>
             )}
           </Card>
