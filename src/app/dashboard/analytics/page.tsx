@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card } from "@/components/ui/Card";
 import { StatCard } from "@/components/ui/StatCard";
+import { api, DashboardSummary } from "@/lib/api";
 import {
   BarChart2,
   Calendar,
@@ -22,6 +23,16 @@ export default function AnalyticsPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [selectedRange, setSelectedRange] = useState("Last 30 days");
   const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
+  const [summary, setSummary] = useState<DashboardSummary>({
+    revenue_at_risk_cents: 0,
+    recovered_cents: 0,
+    recovery_rate: 0,
+    total_failed_payments: 0,
+  });
+
+  useEffect(() => {
+    api.getDashboardSummary().then(setSummary).catch(console.error);
+  }, []);
 
   const ranges = [
     "Last 7 days",
@@ -58,106 +69,83 @@ export default function AnalyticsPage() {
       )}
 
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <header className="h-[76px] px-6 sm:px-8 bg-white dark:bg-[#0B0F19] border-b border-[#E5E7EB] dark:border-gray-800 flex items-center justify-between sticky top-0 z-30 transition-colors">
-          <div className="flex items-center gap-3">
+        <DashboardHeader
+          title="Revenue Analytics"
+          subtitle="Deep dive into recovered MRR, cohort salvage rates, and decline trends."
+          onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
+        >
+          {/* Custom Date-Range Picker Dropdown */}
+          <div className="relative">
             <button
               type="button"
-              onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              onClick={() => setDateDropdownOpen(!dateDropdownOpen)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E5E7EB] dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-medium text-[#111827] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-2xs transition-colors"
             >
-              <Menu className="w-5 h-5" />
+              <Calendar className="w-3.5 h-3.5 text-[#6366F1]" />
+              <span>{selectedRange}</span>
+              <ChevronDown className="w-3 h-3 text-[#6B7280]" />
             </button>
-            <div>
-              <h1 className="font-display font-bold text-lg sm:text-xl text-[#111827] dark:text-white">
-                Revenue Analytics
-              </h1>
-              <p className="text-xs text-[#6B7280] dark:text-gray-400 hidden sm:block">
-                Deep dive into recovered MRR, cohort salvage rates, and decline
-                trends.
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-4">
-            {/* Custom Date-Range Picker Dropdown */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setDateDropdownOpen(!dateDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E5E7EB] dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-medium text-[#111827] dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-2xs transition-colors"
-              >
-                <Calendar className="w-3.5 h-3.5 text-[#6366F1]" />
-                <span>{selectedRange}</span>
-                <ChevronDown className="w-3 h-3 text-[#6B7280]" />
-              </button>
-
-              {dateDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-gray-800 rounded-xl shadow-lg py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150">
-                  {ranges.map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => {
-                        setSelectedRange(r);
-                        setDateDropdownOpen(false);
-                      }}
-                      className="w-full text-left px-3.5 py-1.5 text-xs text-[#111827] dark:text-gray-300 hover:bg-[#EEF2FF] dark:hover:bg-[#6366F1]/20 hover:text-[#6366F1] dark:hover:text-white transition-colors"
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <ThemeToggle />
-
-            <div className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm">
-                A
+            {dateDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-gray-800 rounded-xl shadow-lg py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150">
+                {ranges.map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => {
+                      setSelectedRange(r);
+                      setDateDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-3.5 py-1.5 text-xs text-[#111827] dark:text-gray-300 hover:bg-[#EEF2FF] dark:hover:bg-[#6366F1]/20 hover:text-[#6366F1] dark:hover:text-white transition-colors"
+                  >
+                    {r}
+                  </button>
+                ))}
               </div>
-              <span className="hidden xl:inline-block text-xs font-semibold text-[#111827] dark:text-gray-200">
-                Alex Morgan
-              </span>
-              <ChevronDown className="w-3 h-3 text-[#6B7280] dark:text-gray-400 hidden xl:block" />
-            </div>
+            )}
           </div>
-        </header>
+        </DashboardHeader>
 
         <main className="p-6 sm:p-8 space-y-6 max-w-7xl w-full">
-          {/* Top KPI row (All zeroes for fresh account) */}
+          {/* Top KPI row with live values */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <StatCard
               icon={<DollarSign className="w-4 h-4" />}
               label="Net Recovered ARR"
-              value="$0"
-              trend="0%"
-              trendDirection="neutral"
+              value={`$${((summary.recovered_cents * 12) / 100).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`}
+              trend={summary.recovered_cents > 0 ? "Active" : "0%"}
+              trendDirection={summary.recovered_cents > 0 ? "up" : "neutral"}
               caption="Annualized impact"
             />
             <StatCard
               icon={<Percent className="w-4 h-4" />}
               label="Overall Recovery Rate"
-              value="0%"
-              trend="0%"
-              trendDirection="neutral"
+              value={`${summary.recovery_rate.toFixed(1)}%`}
+              trend={summary.recovery_rate > 0 ? `${summary.recovery_rate.toFixed(0)}%` : "0%"}
+              trendDirection={summary.recovery_rate > 0 ? "up" : "neutral"}
               caption="vs. industry benchmark"
             />
             <StatCard
               icon={<CreditCard className="w-4 h-4" />}
-              label="Involuntary Churn Prevented"
-              value="$0"
-              trend="0%"
-              trendDirection="neutral"
-              caption="Across active plans"
+              label="Revenue at Risk"
+              value={`$${(summary.revenue_at_risk_cents / 100).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`}
+              trend={summary.revenue_at_risk_cents > 0 ? "Pending" : "0%"}
+              trendDirection={summary.revenue_at_risk_cents > 0 ? "down" : "neutral"}
+              caption="Failed payment volume"
             />
             <StatCard
               icon={<TrendingUp className="w-4 h-4" />}
-              label="Avg Time to Recovery"
-              value="0d"
-              trend="0%"
-              trendDirection="neutral"
-              caption="From first decline"
+              label="Failed Invoices"
+              value={summary.total_failed_payments.toString()}
+              trend={summary.total_failed_payments > 0 ? `${summary.total_failed_payments}` : "0"}
+              trendDirection={summary.total_failed_payments > 0 ? "down" : "neutral"}
+              caption="Total recorded"
             />
           </div>
 
