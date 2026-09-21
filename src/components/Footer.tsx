@@ -86,7 +86,7 @@ export function Footer() {
                     alt="LeakOps - Your SaaS revenue is leaking. Find it. Fix it. | Product Hunt"
                     width={250}
                     height={54}
-                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1256832&amp;theme=light&amp;t=1789996382450"
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1256832&amp;theme=light&amp;t=1789996901976"
                   />
                 </a>
               </div>
