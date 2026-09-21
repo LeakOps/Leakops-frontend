@@ -61,6 +61,64 @@ export function Footer() {
                 <TwitterIcon className="w-4 h-4" />
               </a>
             </div>
+
+            <div className="pt-4 flex flex-wrap items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4 dark:hidden">
+                <a
+                  href="https://launchbuff.com/products/leakops-rlvuk8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Featured on LaunchBuff"
+                >
+                  <img
+                    src="https://launchbuff.com/badge-featured-light.svg"
+                    alt="Featured on LaunchBuff"
+                    width={256}
+                    height={80}
+                  />
+                </a>
+                <a
+                  href="https://www.producthunt.com/products/leakops?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-leakops"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    alt="LeakOps - Your SaaS revenue is leaking. Find it. Fix it. | Product Hunt"
+                    width={250}
+                    height={54}
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1256832&amp;theme=light&amp;t=1789996382450"
+                  />
+                </a>
+              </div>
+
+              <div className="hidden flex-wrap items-center gap-4 dark:flex">
+                <a
+                  href="https://launchbuff.com/products/leakops-rlvuk8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Featured on LaunchBuff"
+                >
+                  <img
+                    src="https://launchbuff.com/badge-featured-dark.svg"
+                    alt="Featured on LaunchBuff"
+                    width={256}
+                    height={80}
+                  />
+                </a>
+                <a
+                  href="https://www.producthunt.com/products/leakops?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-leakops"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    alt="LeakOps - Your SaaS revenue is leaking. Find it. Fix it. | Product Hunt"
+                    width={250}
+                    height={54}
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1256832&amp;theme=dark&amp;t=1789996418107"
+                  />
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Column 2 — Product (2 or 3 cols on lg) */}
