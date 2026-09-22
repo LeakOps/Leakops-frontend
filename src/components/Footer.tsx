@@ -89,17 +89,6 @@ export function Footer() {
                     src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1256832&amp;theme=light&amp;t=1789996901976"
                   />
                 </a>
-                <a
-                  href="https://saashunt.best/projects/leakops?utm_source=badge"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src="https://saashunt.best/images/badges/featured-on-light.svg"
-                    alt="Featured on SaasHunt"
-                    style={{ height: 44, width: "auto" }}
-                  />
-                </a>
               </div>
 
               <div className="hidden flex-wrap items-center gap-4 dark:flex">
@@ -126,17 +115,6 @@ export function Footer() {
                     width={250}
                     height={54}
                     src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1256832&amp;theme=dark&amp;t=1789996418107"
-                  />
-                </a>
-                <a
-                  href="https://saashunt.best/projects/leakops?utm_source=badge"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src="https://saashunt.best/images/badges/featured-on-light.svg"
-                    alt="Featured on SaasHunt"
-                    style={{ height: 44, width: "auto" }}
                   />
                 </a>
               </div>
