@@ -123,7 +123,7 @@ export default function LandingPage() {
 
             {/* 3. Paragraph */}
             <p className="mt-5 text-[#6B7280] dark:text-gray-400 text-base sm:text-[17px] leading-relaxed max-w-[480px]">
-              LeakOps monitors failed payments, dunning, proration errors,
+              LeakOps is a payment recovery Infrastructure for businesses that monitors failed payments, dunning, proration errors,
               coupon abuse and more — so you can recover lost revenue
               automatically.
             </p>
