@@ -139,10 +139,17 @@ export const api = {
   },
 
   async uploadProfilePicture(file: File): Promise<{ profile_picture_url: string }> {
-    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    const typeByExtension: Record<string, string> = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      webp: 'image/webp',
+    };
     const maxFileSize = 2 * 1024 * 1024;
+    const extension = file.name.split('.').pop()?.toLowerCase() || '';
+    const contentType = typeByExtension[extension] || file.type;
 
-    if (!allowedTypes.has(file.type)) {
+    if (!typeByExtension[extension] && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
       throw new Error('Please choose a JPG, PNG, or WEBP image.');
     }
 
@@ -151,7 +158,11 @@ export const api = {
     }
 
     const formData = new FormData();
-    formData.append('image', file);
+    const uploadFile =
+      file.type === contentType
+        ? file
+        : new File([file], file.name, { type: contentType });
+    formData.append('image', uploadFile, uploadFile.name);
     return apiRequest<{ profile_picture_url: string }>('/profile/picture', {
       method: 'POST',
       body: formData,
