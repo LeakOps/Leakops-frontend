@@ -26,6 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 import { AlertCircle } from "lucide-react";
 
 type Step = 1 | 2 | 3;
@@ -213,18 +214,13 @@ export default function ConnectPaymentPage() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <div className="flex items-center gap-2.5 p-1 rounded-full cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-            {user?.profile_picture_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={user.profile_picture_url}
-                alt={user?.name || "Account"}
-                className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs">
-                {(user?.name || "A").charAt(0).toUpperCase()}
-              </div>
-            )}
+            <ProfileAvatar
+              src={user?.profile_picture_url}
+              name={user?.name || "Account"}
+              alt={user?.name || "Account"}
+              className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+              fallbackClassName="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs"
+            />
             <span className="hidden sm:inline-block text-sm font-medium text-[#111827] dark:text-gray-200">
               {user?.name || "Account"}
             </span>

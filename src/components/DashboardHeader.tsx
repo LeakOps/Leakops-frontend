@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '@/lib/auth';
 import { Menu, ChevronDown, Settings, LogOut, RefreshCw } from 'lucide-react';
+import { ProfileAvatar } from './ProfileAvatar';
 
 interface DashboardHeaderProps {
   title: string;
@@ -25,7 +26,6 @@ export function DashboardHeader({
   const displayName = user?.name || 'Account';
   const displayEmail = user?.email || '';
   const avatarUrl = user?.profile_picture_url;
-  const initial = displayName.charAt(0).toUpperCase() || 'U';
 
   return (
     <header className="h-[76px] px-6 sm:px-8 bg-white dark:bg-[#0B0F19] border-b border-[#E5E7EB] dark:border-gray-800 flex items-center justify-between sticky top-0 z-30 transition-colors">
@@ -64,18 +64,13 @@ export function DashboardHeader({
             className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]"
             aria-expanded={userMenuOpen}
           >
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarUrl}
-                alt={displayName}
-                className="w-8 h-8 rounded-full object-cover shadow-sm border border-gray-200 dark:border-gray-700"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm">
-                {initial}
-              </div>
-            )}
+            <ProfileAvatar
+              src={avatarUrl}
+              name={displayName}
+              alt={displayName}
+              className="w-8 h-8 rounded-full object-cover shadow-sm border border-gray-200 dark:border-gray-700"
+              fallbackClassName="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm"
+            />
             <span className="hidden xl:inline-block text-xs font-semibold text-[#111827] dark:text-gray-200">
               {displayName}
             </span>
