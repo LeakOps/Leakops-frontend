@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/auth";
 import { api, GatewayAccount } from "@/lib/api";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 import {
   RefreshCw,
   Trash2,
@@ -126,18 +127,13 @@ export default function WebhookSetupPage() {
               href="/dashboard/settings"
               className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
             >
-              {user?.profile_picture_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={user.profile_picture_url}
-                  alt={user?.name || "Account"}
-                  className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm">
-                  {(user?.name || "A").charAt(0).toUpperCase()}
-                </div>
-              )}
+              <ProfileAvatar
+                src={user?.profile_picture_url}
+                name={user?.name || "Account"}
+                alt={user?.name || "Account"}
+                className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+                fallbackClassName="w-8 h-8 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-xs shadow-sm"
+              />
               <span className="hidden xl:inline-block text-xs font-semibold text-[#111827] dark:text-gray-200">
                 {user?.name || "Account"}
               </span>

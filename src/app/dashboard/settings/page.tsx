@@ -20,6 +20,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ProfileAvatar } from "@/components/ProfileAvatar";
 
 export default function SettingsPage() {
   const { user, updateProfilePicture } = useAuth();
@@ -90,10 +91,11 @@ export default function SettingsPage() {
     try {
       setUploadingAvatar(true);
       await updateProfilePicture(file);
-    } catch (err: any) {
-      alert(err.message || "Failed to upload profile picture");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to upload profile picture");
     } finally {
       setUploadingAvatar(false);
+      e.target.value = "";
     }
   };
 
@@ -175,18 +177,13 @@ export default function SettingsPage() {
                 />
 
                 <div className="flex items-center gap-4">
-                  {user?.profile_picture_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={user.profile_picture_url}
-                      alt={name}
-                      className="w-16 h-16 rounded-full object-cover shadow-md border-2 border-[#6366F1]"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-[#6366F1] text-white font-display font-bold text-2xl flex items-center justify-center shadow-md">
-                      {(name || "U").charAt(0).toUpperCase()}
-                    </div>
-                  )}
+                  <ProfileAvatar
+                    src={user?.profile_picture_url}
+                    name={name}
+                    alt={name}
+                    className="w-16 h-16 rounded-full object-cover shadow-md border-2 border-[#6366F1]"
+                    fallbackClassName="w-16 h-16 rounded-full bg-[#6366F1] text-white font-display font-bold text-2xl flex items-center justify-center shadow-md"
+                  />
 
                   <div>
                     <Button
