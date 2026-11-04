@@ -139,6 +139,17 @@ export const api = {
   },
 
   async uploadProfilePicture(file: File): Promise<{ profile_picture_url: string }> {
+    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    const maxFileSize = 2 * 1024 * 1024;
+
+    if (!allowedTypes.has(file.type)) {
+      throw new Error('Please choose a JPG, PNG, or WEBP image.');
+    }
+
+    if (file.size > maxFileSize) {
+      throw new Error('Profile pictures must be 2 MB or smaller.');
+    }
+
     const formData = new FormData();
     formData.append('image', file);
     return apiRequest<{ profile_picture_url: string }>('/profile/picture', {

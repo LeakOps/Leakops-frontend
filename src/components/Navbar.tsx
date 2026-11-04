@@ -9,6 +9,7 @@ import { Button } from "./ui/Button";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
+import { ProfileAvatar } from "./ProfileAvatar";
 
 interface NavbarProps {
   variant?: "landing" | "app";
@@ -24,7 +25,6 @@ export function Navbar({ variant = "landing", userName }: NavbarProps) {
   const displayName = user?.name || userName || "Account";
   const displayEmail = user?.email || "";
   const avatarUrl = user?.profile_picture_url;
-  const initial = displayName.charAt(0).toUpperCase() || "U";
   const connectGatewayHref = isAuthenticated
     ? "/onboarding/connect-payment"
     : "/login";
@@ -182,18 +182,13 @@ export function Navbar({ variant = "landing", userName }: NavbarProps) {
                 className="flex items-center gap-2.5 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]"
                 aria-expanded={userMenuOpen}
               >
-                {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={avatarUrl}
-                    alt={displayName}
-                    className="w-9 h-9 rounded-full object-cover shadow-sm border border-gray-200 dark:border-gray-700"
-                  />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-sm shadow-sm">
-                    {initial}
-                  </div>
-                )}
+                <ProfileAvatar
+                  src={avatarUrl}
+                  name={displayName}
+                  alt={displayName}
+                  className="w-9 h-9 rounded-full object-cover shadow-sm border border-gray-200 dark:border-gray-700"
+                  fallbackClassName="w-9 h-9 rounded-full bg-[#6366F1] text-white flex items-center justify-center font-display font-semibold text-sm shadow-sm"
+                />
                 <span className="hidden sm:inline-block text-sm font-medium text-[#111827] dark:text-gray-200">
                   {displayName}
                 </span>
